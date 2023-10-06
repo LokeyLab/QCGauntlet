@@ -22,9 +22,9 @@ def pyclusterHeatmap_pearsonComplete(inTabFile, outname, rowCluster = True, colC
     # exptree.scale()
     record.save(outname,genetree,exptree)
 
-def parsePlates(inDf: pd.DataFrame, sep: str = '._.', **kwargs):
+def parsePlates(inDf: pd.DataFrame, sep: str = '._.', plateLabelIndex = -1, **kwargs):
     try:
-        plates = [str(i).split(sep)[1] for i in list(inDf.index)]
+        plates = [str(i).split(sep)[plateLabelIndex] for i in list(inDf.index)]
     except IndexError:
         plates = [str(i).split(sep)[0] for i in list(inDf.index)]
     updatedDf = inDf.copy()
