@@ -39,7 +39,7 @@ def getPlateActivityScores(compoundDf: pd.DataFrame,\
 
     if map is not None:
         namingDf = compoundDf if noCompDf is None else noCompDf
-        renamedDf = renameKeys(mainDf=namingDf, keyDf=map, renameColumn=renameColumn, left_on='Wells')
+        renamedDf = renameKeys(mainDf=namingDf, keyDf=map, renameColumn=renameColumn, left_on=wellLabels)
         acScoreDf['Full Proper Name'] = list(renamedDf.index)
         acScoreDf.set_index('Full Proper Name', inplace=True)
     else:
