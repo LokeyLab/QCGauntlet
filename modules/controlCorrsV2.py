@@ -15,9 +15,6 @@ def plotCorrs(corrs: np.ndarray, title: str, ax):
     ax.set_xlim([-1,1])
     return
 
-def calculateScore(df: pd.DataFrame, axis=1):
-    return df.apply(lambda x: np.sqrt(np.sum(np.square(x))), axis=axis)
-
 def renameKeys(mainDf: pd.DataFrame, keyDf: pd.DataFrame, renameColumn, left_index = True, left_on='Wells') -> pd.DataFrame:
     if left_index:
         mergeDf = pd.merge(mainDf, keyDf, left_index=True, right_index=True, how='left', sort=False).copy()

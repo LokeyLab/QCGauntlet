@@ -1,8 +1,11 @@
 import pandas as pd, numpy as np
 import Bio.Cluster as pycluster
 
-def renameKeys(mainDf: pd.DataFrame, keyDf: pd.DataFrame, renameColumn):
-    mergeDf = pd.merge(mainDf, keyDf, left_index=True, right_index=True, how='left', sort=False).copy()
+def renameKeys(mainDf: pd.DataFrame, keyDf: pd.DataFrame, renameColumn, left_on=None):
+    if left_on is not None:
+        mergeDf = pd.merge(mainDf, keyDf, left_on=left_on, right_index=True, how='left', sort=False).copy()
+    else:
+        mergeDf = pd.merge(mainDf, keyDf, left_index=True, right_index=True, how='left', sort=False).copy()
     mergeDf.index = mergeDf[renameColumn]
     mergeDf = mergeDf.drop(renameColumn, axis=1, inplace=False)
     return mergeDf
@@ -32,3 +35,6 @@ def parsePlates(inDf: pd.DataFrame, sep: str = '._.', plateLabelIndex = -1, **kw
     updatedDf.set_index('plates', append=True, inplace=True)
 
     return updatedDf
+
+def calculateScore(df: pd.DataFrame, axis=1):
+    return df.apply(lambda x: np.sqrt(np.sum(np.square(x))), axis=axis)

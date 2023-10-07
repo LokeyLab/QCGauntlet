@@ -1,19 +1,7 @@
 import numpy as np, pandas as pd, matplotlib.pyplot as plt, seaborn as sns
 import os, subprocess, shutil, sys
 from matplotlib.backends.backend_pdf import PdfPages
-from modules import parsePlates
-
-def __calculateScore(df: pd.DataFrame, axis=1):
-    return df.apply(lambda x: np.sqrt(np.sum(np.square(x))), axis=axis)
-
-def __renameKeys(mainDf: pd.DataFrame, keyDf: pd.DataFrame, renameColumn, left_on=None):
-    if left_on is not None:
-        mergeDf = pd.merge(mainDf, keyDf, left_on=left_on, right_index=True, how='left', sort=False).copy()
-    else:
-        mergeDf = pd.merge(mainDf, keyDf, left_index=True, right_index=True, how='left', sort=False).copy()
-    mergeDf.index = mergeDf[renameColumn]
-    mergeDf = mergeDf.drop(renameColumn, axis=1, inplace=False)
-    return mergeDf
+from modules import *
 
 def getPlateActivityScores(compoundDf: pd.DataFrame,\
                         noCompDf: pd.DataFrame = None,\
@@ -30,15 +18,15 @@ def getPlateActivityScores(compoundDf: pd.DataFrame,\
         plateName = list(compoundDf.index.get_level_values('plates'))
 
     if noCompDf is None:
-        plateComp = __calculateScore(df=compoundDf.copy())
+        plateComp = calculateScore(df=compoundDf.copy())
         rawData = {
             activityTitles[0]:plateComp.to_numpy(),
             'plate': plateName,
             'wells': wells
         }
     else:
-        plateComp = __calculateScore(df=compoundDf.copy())
-        plateNoCompDf = __calculateScore(df=noCompDf.copy())
+        plateComp = calculateScore(df=compoundDf.copy())
+        plateNoCompDf = calculateScore(df=noCompDf.copy())
         rawData = {
             activityTitles[0]:plateComp.to_numpy(),
             activityTitles[1]:plateNoCompDf.to_numpy(),
@@ -51,7 +39,7 @@ def getPlateActivityScores(compoundDf: pd.DataFrame,\
 
     if map is not None:
         namingDf = compoundDf if noCompDf is None else noCompDf
-        renamedDf = __renameKeys(mainDf=namingDf, keyDf=map, renameColumn=renameColumn, left_on='Wells')
+        renamedDf = renameKeys(mainDf=namingDf, keyDf=map, renameColumn=renameColumn, left_on='Wells')
         acScoreDf['Full Proper Name'] = list(renamedDf.index)
         acScoreDf.set_index('Full Proper Name', inplace=True)
     else:
