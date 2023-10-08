@@ -9,6 +9,7 @@ class CommandLine:
     def __init__(self):
         import argparse
 
+        # init parser
         self.parser = argparse.ArgumentParser(
             description="A CLI program that processes datasets and analyzes the quality of it.",
             prog="QCGauntlet.py",
@@ -16,6 +17,9 @@ class CommandLine:
             add_help=True,
             prefix_chars="-",
         )
+
+        # add subparser
+        self.parser.add_subparsers(title="Gauntlet Analysis", dest="subcommands")
 
 
 def main(inOpts=None):
