@@ -6,7 +6,7 @@ Repository holding QCGauntlet.py, an internal Quality Control Tool
 - [x] Re-Write cpActivityScores.py &rarr; cpActivityScoresV2.py
 - [x] Differentiate between 1 or 2 conditions for cpActivityScoresV2.py
 - [x] Re-Write controlPlates.py to be more efficient and automatically seperates plates (using the new and improved process).
-- [ ] Find ways to improve controlCorr.py (I may not even touch it at all)
+- [x] Find ways to improve controlCorr.py (I may not even touch it at all)
 - [ ] Write out command line (QCGauntlet.py)
 
 **Future Tasks**
