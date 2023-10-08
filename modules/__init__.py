@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np
 import Bio.Cluster as pycluster
 
-def renameKeys(mainDf: pd.DataFrame, keyDf: pd.DataFrame, renameColumn, left_on=None):
+def renameKeys(mainDf: pd.DataFrame, keyDf: pd.DataFrame, renameColumn, left_on=None, **kwargs):
     if left_on is not None:
         mergeDf = pd.merge(mainDf, keyDf, left_on=left_on, right_index=True, how='left', sort=False).copy()
     else:
