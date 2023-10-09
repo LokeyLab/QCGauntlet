@@ -233,6 +233,7 @@ def main(inOpts=None):
                 hue="well_type",
                 controlTitles=cl.args.controlTitles,
             )
+            g.add_legend()
             g.savefig(f"{cl.args.output}_multiPlot.pdf", format="pdf", dpi=320)
 
             cpa.genIndviPlots(
