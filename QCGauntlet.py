@@ -4,6 +4,7 @@ import numpy as np
 
 from modules import *
 import modules.cpActivityScoresV2 as cpa
+import modules.controlClusters as cc
 
 
 class CommandLine:
@@ -144,7 +145,7 @@ class CommandLine:
         self.cpActivityScoreSubparser.add_argument(
             "-at",
             "--activityTitles",
-            nargs="+",
+            nargs=2,
             required=False,
             action="store",
             type=str,
@@ -154,11 +155,68 @@ class CommandLine:
         self.cpActivityScoreSubparser.add_argument(
             "-ct",
             "--controlTitles",
-            nargs="+",
+            nargs=2,
             required=False,
             action="store",
             type=str,
             help="List of control titles/labels (i.e. DMSO PMA)",
+        )
+
+        ### controlCluster ###
+        self.controlClusterSubparser = self.subparser.add_parser(
+            "controlCluster",
+            help="Activates clustermap generation of controls",
+            add_help=True,
+            prefix_chars="-",
+        )
+
+        self.controlClusterSubparser.add_argument(
+            "-s",
+            "--sep",
+            action="store",
+            type=str,
+            default="._.",
+            nargs="?",
+            required=False,
+            help='Determines the seperator/delimiter used to "\
+                "split text into their plates (default: "._.")',
+        )
+        self.controlClusterSubparser.add_argument(
+            "-r",
+            "--rowCLuster",
+            action="store_false",
+            default=True,
+            required=False,
+            help="Toggles row clustering (default: True)",
+        )
+        self.controlClusterSubparser.add_argument(
+            "-c",
+            "--colCLuster",
+            action="store_false",
+            default=True,
+            required=False,
+            help="Toggles column clustering (default: True)",
+        )
+        self.controlClusterSubparser.add_argument(
+            "-ct",
+            "--controlTitles",
+            nargs=2,
+            required=False,
+            action="store",
+            type=str,
+            help="List of control titles/labels (i.e. DMSO PMA)",
+        )
+
+        self.controlClusterSubparser.add_argument(
+            "-pi",
+            "--plateLabelIndex",
+            default=-1,
+            required=False,
+            nargs="?",
+            type=int,
+            action="store",
+            help="After seprating the index labels by the sep command,"
+            " what index are the plate labels on? (def: -1)",
         )
 
         if inOpts is None:
@@ -184,15 +242,15 @@ def main(inOpts=None):
         key = key[cl.args.renameColumns]
         key.set_index(cl.args.renameColumns[0], inplace=True)
 
-    if cl.args.subcommands == "cpactivity":
+    if cl.args.subcommands == "cpactivity":  # scatter plots
         # properties and config:
         # sep x
         # plateLabelIndex x
         # map -> sep function or subparser
         # activityTitles x
         # control Titles x
-        # wellLabels
-        # renameColumn
+        # wellLabels x
+        # renameColumn x
         resDataset = cpa.createDataScores(
             compDf=cond1,
             noCompDf=cond2,
@@ -245,7 +303,28 @@ def main(inOpts=None):
                 threshold=cl.args.threshold,
                 control=cl.args.controlTitles,
             )
+    elif cl.args.subcommands == "controlCluster":
+        if key is None:
+            print("A key file/annotation sheet must be supplied!", file=sys.stderr)
+            exit(-1)
 
+        formatDf = cc.formatDf(
+            compDf=cond1,
+            noCompDf=cond2,
+            key=key,
+            sep=cl.args.sep,
+            controls=cl.args.controlTitles,
+            renameColumn=cl.args.renameColumns[1],
+            plateLabelIndex=cl.args.plateLabelIndex,
+        )
+
+        outname = f"{cl.args.output}_clusterMap"
+        cc.genTreeViewClustMap(
+            inDf=formatDf,
+            outname=outname,
+            rowCluster=cl.args.rowCLuster,
+            colCluster=cl.args.colCLuster,
+        )
     return
 
 
