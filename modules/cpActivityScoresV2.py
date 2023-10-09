@@ -64,7 +64,7 @@ def getPlateActivityScores(
         f"CONTROL_{controlTitle[0]}"
         if inclSep(controlTitle[0]) in i
         else f"CONTROL_{controlTitle[1]}"
-        if inclSep(controlTitle[1]) in i
+        if len(controlTitle) > 1 and inclSep(controlTitle[1]) in i
         else "EXPERIMENTAL"
         for i in list(acScoreDf.index)
     ]
@@ -111,11 +111,17 @@ def createMultiPlot(
 ):
     palette = None
     if hue is not None:
-        palette = {
-            f"CONTROL_{controlTitles[0]}": "purple",
-            f"CONTROL_{controlTitles[1]}": "limegreen",
-            "EXPERIMENTAL": "C0",
-        }
+        if len(controlTitles) > 1:
+            palette = {
+                f"CONTROL_{controlTitles[0]}": "purple",
+                f"CONTROL_{controlTitles[1]}": "limegreen",
+                "EXPERIMENTAL": "C0",
+            }
+        else:
+            palette = {
+                f"CONTROL_{controlTitles[0]}": "purple",
+                "EXPERIMENTAL": "C0",
+            }
 
     g = sns.FacetGrid(ds, col=groupByCol, col_wrap=col_wrap, hue=hue, palette=palette)
     g.map_dataframe(func=snsPlot, x=x, y=y, alpha=0.75)
@@ -150,7 +156,7 @@ def genIndviPlots(
                 "purple"
                 if i == f"CONTROL_{control[0]}"
                 else "limegreen"
-                if i == f"CONTROL_{control[1]}"
+                if len(control) > 1 and i == f"CONTROL_{control[1]}"
                 else "C0"
                 for i in df["well_type"].to_list()
             ]

@@ -148,7 +148,7 @@ class CommandLine:
         self.cpActivityScoreSubparser.add_argument(
             "-at",
             "--activityTitles",
-            nargs=2,
+            nargs="+",
             required=False,
             action="store",
             type=str,
@@ -158,7 +158,7 @@ class CommandLine:
         self.cpActivityScoreSubparser.add_argument(
             "-ct",
             "--controlTitles",
-            nargs=2,
+            nargs="+",
             required=False,
             action="store",
             type=str,
@@ -203,7 +203,7 @@ class CommandLine:
         self.controlClusterSubparser.add_argument(
             "-ct",
             "--controlTitles",
-            nargs=2,
+            nargs="+",
             required=False,
             action="store",
             type=str,
@@ -232,7 +232,7 @@ class CommandLine:
         self.controlHistSubparser.add_argument(
             "-ct",
             "--controlTitles",
-            nargs=2,
+            nargs="+",
             required=False,
             action="store",
             type=str,
@@ -275,7 +275,7 @@ class CommandLine:
             "--datasetLabel",
             action="store",
             required=True,
-            nargs=2,
+            nargs="+",
             type=str,
             help="Specifies what to name figure from "
             "the dataset name (i.e. PMA plate)"
@@ -285,7 +285,7 @@ class CommandLine:
         self.controlBarplotsSubparser.add_argument(
             "-ct",
             "--controlTitles",
-            nargs=2,
+            nargs="+",
             required=False,
             action="store",
             type=str,
@@ -347,6 +347,14 @@ def main(inOpts=None):
         # control Titles x
         # wellLabels x
         # renameColumn x
+        if cond2 is not None and len(cl.args.activityTitles) == 1:
+            print(
+                "2 titles (-at flag) are needed in"
+                " order to create the formatted dataset",
+                file=sys.stderr,
+            )
+            exit(1)
+
         resDataset = cpa.createDataScores(
             compDf=cond1,
             noCompDf=cond2,
