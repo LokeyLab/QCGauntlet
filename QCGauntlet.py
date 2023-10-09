@@ -1,10 +1,13 @@
 import os, sys, shutil, subprocess
 import pandas as pd
 import numpy as np
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
 
 from modules import *
 import modules.cpActivityScoresV2 as cpa
 import modules.controlClusters as cc
+import modules.controlCorrsV2 as corr
 
 
 class CommandLine:
@@ -206,7 +209,6 @@ class CommandLine:
             type=str,
             help="List of control titles/labels (i.e. DMSO PMA)",
         )
-
         self.controlClusterSubparser.add_argument(
             "-pi",
             "--plateLabelIndex",
@@ -217,6 +219,100 @@ class CommandLine:
             action="store",
             help="After seprating the index labels by the sep command,"
             " what index are the plate labels on? (def: -1)",
+        )
+
+        ### controlHist ###
+        self.controlHistSubparser = self.subparser.add_parser(
+            "cntrlHist",
+            help="Activates histogram generation of the distribution of control correlations",
+            add_help=True,
+            prefix_chars="-",
+        )
+
+        self.controlHistSubparser.add_argument(
+            "-ct",
+            "--controlTitles",
+            nargs=2,
+            required=False,
+            action="store",
+            type=str,
+            help="List of control titles/labels (i.e. DMSO PMA)",
+        )
+
+        self.controlHistSubparser.add_argument(
+            "-pi",
+            "--plateLabelIndex",
+            default=-1,
+            required=False,
+            nargs="?",
+            type=int,
+            action="store",
+            help="After seprating the index labels by the sep command,"
+            " what index are the plate labels on? (def: -1)",
+        )
+
+        self.controlHistSubparser.add_argument(
+            "-s",
+            "--sep",
+            action="store",
+            type=str,
+            default="._.",
+            nargs="?",
+            required=False,
+            help='Determines the seperator/delimiter used to "\
+                "split text into their plates (default: "._.")',
+        )
+
+        ### control Barplots ###
+        self.controlBarplotsSubparser = self.subparser.add_parser(
+            "cntrlBarPlots",
+            help="Activates generation of controls over threshold in the form of barplots",
+            add_help=True,
+            prefix_chars="-",
+        )
+        self.controlBarplotsSubparser.add_argument(
+            "-ds",
+            "--datasetLabel",
+            action="store",
+            required=True,
+            nargs=2,
+            type=str,
+            help="Specifies what to name figure from "
+            "the dataset name (i.e. PMA plate)"
+            " if 2 conditions are inputted, then the "
+            "arguments could be: name for -c then name for -ac",
+        )
+        self.controlBarplotsSubparser.add_argument(
+            "-ct",
+            "--controlTitles",
+            nargs=2,
+            required=False,
+            action="store",
+            type=str,
+            help="List of control titles/labels (i.e. DMSO PMA)",
+        )
+        self.controlBarplotsSubparser.add_argument(
+            "-pi",
+            "--plateLabelIndex",
+            default=-1,
+            required=False,
+            nargs="?",
+            type=int,
+            action="store",
+            help="After seprating the index labels by the sep command,"
+            " what index are the plate labels on? (def: -1)",
+        )
+
+        self.controlBarplotsSubparser.add_argument(
+            "-s",
+            "--sep",
+            action="store",
+            type=str,
+            default="._.",
+            nargs="?",
+            required=False,
+            help='Determines the seperator/delimiter used to "\
+                "split text into their plates (default: "._.")',
         )
 
         if inOpts is None:
@@ -305,9 +401,12 @@ def main(inOpts=None):
             )
     elif cl.args.subcommands == "controlCluster":
         if key is None:
-            print("A key file/annotation sheet must be supplied!", file=sys.stderr)
-            exit(-1)
-
+            print(
+                "A key file/annotation sheet must be supplied! "
+                "(use -k and -rc for the key file)",
+                file=sys.stderr,
+            )
+            exit(1)
         formatDf = cc.formatDf(
             compDf=cond1,
             noCompDf=cond2,
@@ -325,6 +424,60 @@ def main(inOpts=None):
             rowCluster=cl.args.rowCLuster,
             colCluster=cl.args.colCLuster,
         )
+    elif cl.args.subcommands == "cntrlHist":
+        if key is None:
+            print(
+                "A key file/annotation sheet must be supplied! "
+                "(use -k and -rc for the key file)",
+                file=sys.stderr,
+            )
+            exit(1)
+        outname = f"{cl.args.output}_cntrlHist.pdf"
+        corr.generateControlCorrsAnalysis(
+            compDf=cond1,
+            noCompDf=cond2,
+            key=key,
+            controlList=cl.args.controlTitles,
+            threshold=cl.args.threshold,
+            sep=cl.args.sep,
+            plateLabelIndex=cl.args.plateLabelIndex,
+            outName=outname,
+        )
+    elif cl.args.subcommands == "cntrlBarPlots":
+        if key is None:
+            print(
+                "A key file/annotation sheet must be supplied! "
+                "(use -k and -rc for the key file)",
+                file=sys.stderr,
+            )
+            exit(1)
+        outname = f"{cl.args.output}_barPlots.pdf"
+        with PdfPages(outname) as pdf:
+            fig = corr.generateControlsAboveThresh(
+                inDF=cond1,
+                datasetLab=cl.args.datasetLabel[0],
+                key=key,
+                controlList=cl.args.controlTitles,
+                threshold=cl.args.threshold,
+                sep=cl.args.sep,
+                plateLabelIndex=cl.args.plateLabelIndex,
+            )
+            pdf.savefig(figure=fig, dpi=320)
+            plt.close(fig)
+
+            if cond2 is not None:
+                fig = corr.generateControlsAboveThresh(
+                    inDF=cond2,
+                    datasetLab=cl.args.datasetLabel[1],
+                    key=key,
+                    controlList=cl.args.controlTitles,
+                    threshold=cl.args.threshold,
+                    sep=cl.args.sep,
+                    plateLabelIndex=cl.args.plateLabelIndex,
+                )
+                pdf.savefig(figure=fig, dpi=320)
+                plt.close(fig)
+
     return
 
 

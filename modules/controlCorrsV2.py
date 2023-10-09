@@ -84,6 +84,8 @@ def generateControlsAboveThresh(
     key: pd.DataFrame,
     controlList: list,
     threshold=0.5,
+    renameCol="wells",
+    sep="._.",
     **kwargs,
 ):
     inDF = parsePlates(inDf=inDF, **kwargs)
@@ -92,13 +94,13 @@ def generateControlsAboveThresh(
 
     for name, df in inDF.groupby(level="plates"):
         df = renameKeys(
-            mainDf=df, keyDf=key, renameColumn="longname_proper", left_on="Wells"
+            mainDf=df, keyDf=key, renameColumn="longname_proper", left_on=renameCol
         )
         df = calculateScore(df=df)
 
         percentages = []
         for control in controlList:
-            controlDf = df[df.index.str.contains(control, na=False)]
+            controlDf = df[df.index.str.contains(f"{control}{sep}", na=False)]
             controlPercentage = ((controlDf >= threshold).sum() / len(controlDf)) * 100
             percentages.append(controlPercentage)
 
