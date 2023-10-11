@@ -1,128 +1,127 @@
 import pandas as pd
 import numpy as np
+import sys
 
 import tkinter as tk
-from tkinter import ttk, filedialog
-from ttkbootstrap import Style
-from gui_utils.ttkUtils import *
+from tkinter import filedialog
+from ttkbootstrap import Style, ttk
+from ttkbootstrap.constants import *
+from gui_utils.ttkMainMenu import *
+from gui_utils.ttkMainViews import *
 
-# import ttkbootstrap as ttk
+import ttkbootstrap as ttk
 
 
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        style = Style(theme="darkly")
+        style = Style(theme="sandstone")
         self.title("QCGauntlet.py")
         self.geometry("1280x720")
+        self.cursors = "dot"
+        self.bootstyle = SUCCESS
+        # title.pack(side=tk.TOP, anchor="nw", fill=tk.X)
 
         frame = ttk.Frame(self, borderwidth=2, relief="solid")
 
-        frame.grid(row=0, column=0, columnspan=2, pady=10, padx=10)
-        frame.pack(side=tk.TOP, anchor="w", padx=10, pady=10)
+        title = ttk.Label(frame, text="QCGauntlet.py", font=("arial", 20, "bold"))
+        title.grid(row=0, column=0, columnspan=2, sticky="w", pady=(5, 30))
+        frame.pack(side=tk.LEFT, anchor="sw", fill=tk.Y)
 
         title_label = tk.Label(
             frame, text="Main File Input and Options", font=("Arial", 14, "bold")
         )
-        title_label.grid(row=0, column=0, columnspan=2)
+        title_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
-        # Create the first file browser
-        self.file_path_var1 = tk.StringVar()
-        self.textbox1 = PlaceholderEntry(
-            frame,
-            textvariable=self.file_path_var1,
-            width=10,
-            placeholder="Main Condition File (.csv)",
+        ######################### FILE BROWSING #########################
+        self.fb = FileBrowsing(
+            parent=frame, cursors=self.cursors, bootstyle=self.bootstyle
         )
-        self.textbox1.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-        self.file_browser1 = ttk.Button(
-            frame,
-            text="Browse File...",
-            command=self.cond1,
-            width=10,
-        )
-        self.file_browser1.grid(row=1, column=1, padx=10, pady=10, sticky="e")
 
-        # Create the second file browser
-        self.file_path_var2 = tk.StringVar()
-        self.textbox2 = PlaceholderEntry(
-            frame,
-            textvariable=self.file_path_var2,
-            width=10,
-            placeholder="Alt. Condition (.csv)",
+        ######################### OPTIONS #########################
+        self.optionsFrontEnd = programOptions(
+            parent=frame, cursors=self.cursors, bootstyle=self.bootstyle
         )
-        self.textbox2.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
-        self.file_browser2 = ttk.Button(
-            frame,
-            text="Browse File...",
-            command=self.cond2,
-            width=10,
-        )
-        self.file_browser2.grid(row=2, column=1, padx=10, pady=10, sticky="e")
 
-        self.file_path_var3 = tk.StringVar()
-        self.textbox3 = PlaceholderEntry(
-            frame,
-            textvariable=self.file_path_var3,
-            width=10,
-            placeholder="Key file (.csv)",
-        )
-        self.textbox3.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
-        self.file_browser3 = ttk.Button(
-            frame, text="Browse File...", command=self.key, width=10
-        )
-        self.file_browser3.grid(row=3, column=1, padx=10, pady=10, sticky="e")
+        ######################### SUBMIT BUTTON #########################
+        sep = ttk.Separator(master=frame, orient="horizontal")
+        sep.grid(row=15, column=0, columnspan=2, padx=5, pady=10, sticky="ew")
 
-        # Add title for the pair of textboxes
-        pair_title_label = tk.Label(
-            frame, text="Index Rename Properties", font=("Arial", 12, "bold")
-        )
-        pair_title_label.grid(row=4, column=0, columnspan=2, pady=(10, 0))
-
-        # Create textboxes for General Plate Names and Proper Names
-        self.general_plate_var = tk.StringVar()
-        # self.general_plate_entry = ttk.Entry(
-        #     frame, textvariable=self.general_plate_var, width=20
-        # )
-        # self.general_plate_entry.insert(0, "General Plate Names")
-        self.general_plate_entry = PlaceholderEntry(
-            frame,
-            textvariable=self.general_plate_var,
+        self.submit = ttk.Button(
+            master=frame,
+            text="Analyze",
+            command=self.submit_action,
+            bootstyle=self.bootstyle,
+            cursor=self.cursors,
             width=20,
-            placeholder="Enter General Plate Names",
         )
-        self.general_plate_entry.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+        self.submit.grid(row=16, column=0, columnspan=2, padx=10, pady=20, sticky="ew")
 
-        self.proper_names_var = tk.StringVar()
-        self.proper_names_entry = PlaceholderEntry(
-            frame,
-            textvariable=self.proper_names_var,
-            width=20,
-            placeholder="Enter Proper Plate Names",
-        )
-        self.proper_names_entry.grid(row=5, column=1, padx=5, pady=5, sticky="w")
-
-        frame.columnconfigure(0, weight=2)  # Give more weight to column 0
+        frame.columnconfigure(0, weight=100)  # Give more weight to column 0
         frame.columnconfigure(1, weight=0)
 
-    def cond1(self):
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            self.file_path_var1.set(file_path)
+        ######################### MAIN VIEW #########################
+        nbFrame = ttk.Frame(self)
+        nbFrame.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
+        self.nb = ttk.Notebook(master=nbFrame)
 
-    def cond2(self):
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            self.file_path_var2.set(file_path)
+        self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
 
-    def key(self):
-        file_path = filedialog.askopenfilename()
-        if file_path:
-            self.file_path_var3.set(file_path)
+        yer = Yer(self.nb)
+
+        self.nb.add(self.cpScoreTab, text="cpscore")
+        self.nb.add(yer, text="yeg")
+        self.nb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.cpScoreTab.forget()
+        self.nb.pack_forget()
+        # nb.grid(row=0, column=3, padx=5, pady=10, sticky="ew")
+        # nb.pack(expand=True, fill=tk.BOTH)
+
+    def submit_action(self):
+        # Get the input values from the textboxes
+        cond1, cond2, key = self.fb.getFiles()
+        renameColumns = self.optionsFrontEnd.getIndexRename()
+        threshold = float(self.optionsFrontEnd.getThreshold())
+        indexCol = int(self.optionsFrontEnd.getIndexCol())
+        cntrlTitles = self.optionsFrontEnd.getControlTitles()
+        actTitles = self.optionsFrontEnd.getFileRenames()
+
+        main_condition_file = pd.read_csv(cond1, sep=",", index_col=indexCol)
+
+        alt_condition_file = None
+        if cond2 is not None:
+            alt_condition_file = pd.read_csv(cond2, sep=",", index_col=indexCol)
+
+        key_file = None
+        if key is not None:
+            key_file = pd.read_csv(key, sep=",")
+            key_file.set_index(renameColumns[0], inplace=True)
+
+        # Perform actions with the input values
+        # (e.g., process files, perform computations, etc.)
+        # loadcpscoreactivity data
+        self.cpScoreTab.loadData(
+            cond1=main_condition_file,
+            cond2=alt_condition_file,
+            map=key_file,
+            activityTitles=actTitles,
+            controlTitle=cntrlTitles,
+            renameColumn=renameColumns[1],
+        )
+
+        # For demonstration, just print the input values
+        self.nb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        # print("Main Condition File:", main_condition_file)
+        # print("Alt Condition File:", alt_condition_file)
+        # print("Key File:", key_file)
+        # print("General Plate Names:", renameColumns[0])
+        # print("Proper Plate Names:", renameColumns[1])
 
 
 def main():
     app = App()
+    app.resizable(False, False)
     app.mainloop()
 
 
