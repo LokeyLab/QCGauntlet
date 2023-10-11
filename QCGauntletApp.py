@@ -7,7 +7,8 @@ from tkinter import filedialog
 from ttkbootstrap import Style, ttk
 from ttkbootstrap.constants import *
 from gui_utils.ttkMainMenu import *
-from gui_utils.ttkMainViews import *
+from gui_utils.ttkCpActivityScore import CPActivityScores
+from gui_utils.ttkControlCorr import Yer
 
 import ttkbootstrap as ttk
 
@@ -15,7 +16,7 @@ import ttkbootstrap as ttk
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        style = Style(theme="sandstone")
+        style = Style(theme="darkly")
         self.title("QCGauntlet.py")
         self.geometry("1280x720")
         self.cursors = "dot"
@@ -56,6 +57,15 @@ class App(tk.Tk):
         )
         self.submit.grid(row=16, column=0, columnspan=2, padx=10, pady=20, sticky="ew")
 
+        self.quit = ttk.Button(
+            master=frame,
+            text="Quit",
+            command=self.destroy,
+            width=10,
+            bootstyle=DANGER,
+            cursor=self.cursors,
+        )
+        self.quit.grid(row=17, column=0, columnspan=2, padx=20, pady=15, sticky="ew")
         # frame.columnconfigure(0, weight=100)  # Give more weight to column 0
         # frame.columnconfigure(1, weight=0)
 
