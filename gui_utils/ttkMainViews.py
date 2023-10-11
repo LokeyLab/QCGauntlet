@@ -1,8 +1,12 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
-from ttkbootstrap import Style
+from tkinter import filedialog
+from ttkbootstrap import Style, ttk
+from ttkbootstrap.scrolled import ScrolledFrame
 import pandas as pd, numpy as np
 import os
+
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 from gui_utils import *
 from modules import cpActivityScoresV2 as cpa
@@ -27,10 +31,14 @@ class CPActivityScores(ttk.Frame):
         super().__init__(parent)
         self.cursor = cursor
 
-        self.menu()
         self.options = self.getMenuOptions
         self.cond1, self.cond2 = None, None
         self.kwargs = None
+        self.ds = None
+        self.menu()
+
+        self.grid_rowconfigure(1, weight=1)  # Allow vertical expansion
+        self.grid_columnconfigure(0, weight=1)
 
     def menu(self):
         self.menuOptions = ttk.Frame(
@@ -78,7 +86,7 @@ class CPActivityScores(ttk.Frame):
         self.generateButton.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 
     def getMenuOptions(self):
-        return self.sepEntry.get(), self.plateIndexEntry.get()
+        return [self.sepEntry.get(), self.plateIndexEntry.get()]
 
     def loadData(self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, **kwargs):
         self.cond1, self.cond2 = cond1, cond2
@@ -88,8 +96,80 @@ class CPActivityScores(ttk.Frame):
 
     def runBackend(self):
         # THIS WORKS NOW
+        options = self.getMenuOptions()
+        self.kwargs.update({"sep": options[0], "plateLabelIndex": int(options[1])})
         ds = cpa.createDataScores(compDf=self.cond1, noCompDf=self.cond2, **self.kwargs)
+        self.ds = ds
+        g = cpa.createMultiPlot(
+            ds=self.ds,
+            groupByCol="plate",
+            x=self.kwargs["activityTitles"][0],
+            y=self.kwargs["activityTitles"][1],
+            hue="well_type",
+            controlTitles=self.kwargs["controlTitle"],
+        )
+        self.displayFigure(fig=g.fig)
+
         return ds
+
+    def displayFigure(self, fig):
+        masterFrame = tk.Frame(self, borderwidth=2, padx=10, pady=10)
+        masterFrame.grid(row=1, column=0, sticky="nsew")
+
+        canvas = tk.Canvas(master=masterFrame)
+        canvas.grid(row=0, column=0, sticky="nsew")
+
+        vScroll = ttk.Scrollbar(
+            master=masterFrame, orient=tk.VERTICAL, command=canvas.yview
+        )
+        vScroll.grid(row=0, column=1, sticky="ns")
+
+        hScroll = ttk.Scrollbar(
+            master=masterFrame, orient=tk.HORIZONTAL, command=canvas.xview
+        )
+        hScroll.grid(row=1, column=0, sticky="ew")
+
+        canvas.configure(yscrollcommand=vScroll.set, xscrollcommand=hScroll.set)
+        canvas.bind(
+            "<Configure>",
+            lambda event: canvas.configure(scrollregion=canvas.bbox("all")),
+        )
+
+        figFrame = FigureCanvasTkAgg(figure=fig, master=canvas)
+        figFrame.draw()
+        figCanvas = figFrame.get_tk_widget()
+
+        canvas.create_window((0, 0), window=figCanvas, anchor="nw")
+
+    # def displayFigure(self, fig):
+    #     masterFrame = tk.Frame(self, borderwidth=2, padx=10, pady=10)
+    #     # masterFrame.pack(side=tk.TOP, anchor="s", fill=tk.BOTH, expand=True)
+    #     masterFrame.grid(row=1, column=0, sticky="nsew")
+
+    #     canvas = tk.Canvas(master=masterFrame)
+    #     canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, anchor="nw")
+
+    #     vScroll = ttk.Scrollbar(
+    #         master=masterFrame, orient=tk.VERTICAL, command=canvas.yview
+    #     )
+    #     vScroll.pack(side=tk.RIGHT, fill=tk.Y)
+
+    #     hScroll = ttk.Scrollbar(
+    #         master=masterFrame, orient=tk.HORIZONTAL, command=canvas.xview
+    #     )
+    #     hScroll.pack(side=tk.BOTTOM, fill=tk.Y, anchor=tk.W)
+
+    #     canvas.configure(yscrollcommand=vScroll.set)
+    #     canvas.bind(
+    #         "<Configure>",
+    #         lambda event: canvas.configure(scrollregion=canvas.bbox("all")),
+    #     )
+
+    #     figFrame = FigureCanvasTkAgg(figure=fig, master=canvas)
+    #     figFrame.draw()
+    #     figCanvas = figFrame.get_tk_widget()
+
+    #     canvas.create_window((0, 0), window=figCanvas, anchor="nw")
 
     def hide(self):
         self.grid_forget()

@@ -121,7 +121,7 @@ class App(tk.Tk):
 
 def main():
     app = App()
-    app.resizable(False, False)
+    # app.resizable(False, False)
     app.mainloop()
 
 
