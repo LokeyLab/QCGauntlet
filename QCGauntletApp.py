@@ -65,17 +65,20 @@ class App(tk.Tk):
         self.nb = ttk.Notebook(master=self, height=480, width=480)
         self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
         self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
-
+        self.cpScoreTab.resetWidgets()
         yer = Yer(self.nb)
 
         self.nb.add(self.cpScoreTab, text="cpscore")
         self.nb.add(yer, text="yeg")
 
-        self.cpScoreTab.forget()
-        self.nb.pack_forget()
+        # self.cpScoreTab.forget()
+        # self.nb.pack_forget()
 
     def submit_action(self):
         # Get the input values from the textboxes
+        self.nb.pack_forget()
+        self.cpScoreTab.resetWidgets()
+
         cond1, cond2, key = self.fb.getFiles()
         renameColumns = self.optionsFrontEnd.getIndexRename()
         threshold = float(self.optionsFrontEnd.getThreshold())
@@ -104,8 +107,10 @@ class App(tk.Tk):
             activityTitles=actTitles,
             controlTitle=cntrlTitles,
             renameColumn=renameColumns[1],
+            threshold=threshold,
         )
 
+        self.cpScoreTab.showWidgets()
         self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
 
 

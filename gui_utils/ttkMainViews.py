@@ -7,6 +7,7 @@ import os
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.backends.backend_pdf import PdfPages
 
 from gui_utils import *
 from modules import cpActivityScoresV2 as cpa
@@ -35,16 +36,31 @@ class CPActivityScores(ttk.Frame):
         self.cond1, self.cond2 = None, None
         self.kwargs = None
         self.ds = None
-        self.menu()
 
+        self.topGrid = ttk.Frame(master=self, borderwidth=2, relief=tk.SOLID)
+        self.nextGrid = ttk.Frame(master=self)
+
+        self.menu(master=self.topGrid)
+
+        self.dlOpts = self.downloadOptions(master=self.topGrid)
+        self.dlOpts.pack_forget()
+
+        self.changeView = self.graphViewer(master=self.topGrid)
+        self.changeView.pack_forget()
+
+        self.topGrid.pack(side=tk.TOP, fill=tk.X, expand=False)
+        self.nextGrid.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         # self.grid_rowconfigure(1, weight=1)  # Allow vertical expansion
         # self.grid_columnconfigure(0, weight=1)
 
-    def menu(self):
+    def menu(self, master=None):
         self.menuOptions = ttk.Frame(
-            master=self, borderwidth=2, relief=tk.SOLID, width=30
+            master=master if master is not None else self,
+            borderwidth=2,
+            relief=tk.SOLID,
+            width=30,
         )
-        self.menuOptions.pack(side=tk.TOP, anchor="w")
+        self.menuOptions.pack(side=tk.LEFT, anchor="center", padx=10, pady=5)
         # self.menuOptions.pack(side=tk.TOP, anchor="nw", expand=True)
         # self.menuOptions.grid(row=0, column=0, sticky="ew", padx=10, pady=5)
 
@@ -92,30 +108,81 @@ class CPActivityScores(ttk.Frame):
     def loadData(self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, **kwargs):
         self.cond1, self.cond2 = cond1, cond2
         self.cond1.index.name = "Wells"
-        self.cond2.index.name = "Wells"
+
+        if cond2 is not None:
+            self.cond2.index.name = "Wells"
         self.kwargs = kwargs
+
+    def resetWidgets(self):
+        self.dlOpts.pack_forget()
+        self.changeView.pack_forget()
+        self.menuOptions.pack_forget()
+
+        try:
+            self.activeFig.pack_forget()
+        except:
+            pass
+
+        self.options = self.getMenuOptions
+        self.cond1, self.cond2 = None, None
+        self.kwargs = None
+        self.ds = None
+
+    def showWidgets(self):
+        self.menuOptions.pack(side=tk.LEFT, anchor="center", padx=10, pady=5)
 
     def runBackend(self):
         # THIS WORKS NOW
+        self.dlOpts.pack_forget()
+        self.changeView.pack_forget()
+
         options = self.getMenuOptions()
         self.kwargs.update({"sep": options[0], "plateLabelIndex": int(options[1])})
-        ds = cpa.createDataScores(compDf=self.cond1, noCompDf=self.cond2, **self.kwargs)
-        self.ds = ds
-        g = cpa.createMultiPlot(
-            ds=self.ds,
-            groupByCol="plate",
-            x=self.kwargs["activityTitles"][0],
-            y=self.kwargs["activityTitles"][1],
-            hue="well_type",
-            controlTitles=self.kwargs["controlTitle"],
+        self.ds = cpa.createDataScores(
+            compDf=self.cond1, noCompDf=self.cond2, **self.kwargs
         )
-        self.displayFigure(fig=g.fig)
 
-        return ds
+        if self.cond2 is not None:
+            self.g = cpa.createMultiPlot(
+                ds=self.ds,
+                groupByCol="plate",
+                x=self.kwargs["activityTitles"][0],
+                y=self.kwargs["activityTitles"][1],
+                hue="well_type",
+                controlTitles=self.kwargs["controlTitle"],
+                threshold=self.kwargs["threshold"],
+            )
+            self.g.add_legend()
+            self.figs = cpa.genIndviPlots(
+                ds=self.ds,
+                groupByCol="plate",
+                xCol=self.kwargs["activityTitles"][0],
+                yCol=self.kwargs["activityTitles"][1],
+                threshold=self.kwargs["threshold"],
+                control=self.kwargs["controlTitle"],
+                pdfOut=False,
+                outname="dummy.pdf",
+            )
+        else:
+            self.figs = cpa.genIndivElbows(
+                ds=self.ds,
+                groupByCol="plate",
+                yCol=self.kwargs["activityTitles"][0],
+                threshold=self.kwargs["threshold"],
+                control=self.kwargs["controlTitle"],
+                pdfOut=False,
+                outname="dummy.pdf",
+            )
+
+        self.activeFig = self.displayFigure(fig=self.figs)
+        self.dlOpts.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.Y)
+        self.changeView.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.Y)
+
+        return self.ds
 
     def displayFigure(self, fig):
         masterFrame = ttk.Frame(
-            self,
+            master=self.nextGrid,
             borderwidth=2,
             # padx=10,
             # pady=10,
@@ -149,16 +216,31 @@ class CPActivityScores(ttk.Frame):
             lambda event: canvas.configure(scrollregion=canvas.bbox("all")),
         )
 
-        figFrame = FigureCanvasTkAgg(figure=fig, master=canvas)
-        figFrame.draw()
-        figCanvas = figFrame.get_tk_widget()
+        if not isinstance(fig, list):
+            figFrame = FigureCanvasTkAgg(figure=fig, master=canvas)
+            figFrame.draw()
+            figCanvas = figFrame.get_tk_widget()
 
-        canvas.create_window((0, 0), window=figCanvas, anchor="nw", tags="figCanvas")
+            canvas.create_window(
+                (0, 0), window=figCanvas, anchor="nw", tags="figCanvas"
+            )
+        else:
+            fig_height = sum(f.bbox.ymax - f.bbox.ymin for f in fig)
+            canvas.config(scrollregion=(0, 0, 0, fig_height))
+
+            y_offset = 0
+            for f in fig:
+                fig_canvas = FigureCanvasTkAgg(figure=f, master=canvas)
+                fig_canvas.draw()
+                canvas.create_window(
+                    0, y_offset, window=fig_canvas.get_tk_widget(), anchor="nw"
+                )
+                y_offset += f.bbox.ymax - f.bbox.ymin
 
         # Function to handle mousewheel scrolling with smoother increment
         def _on_mousewheel(event):
             increment = -1 * (
-                event.delta / 120
+                event.delta / 60
             )  # Smaller increment for smoother scrolling
             canvas.yview_scroll(int(increment), "units")
 
@@ -174,8 +256,109 @@ class CPActivityScores(ttk.Frame):
         )
         canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
 
+        return masterFrame
+
     def hide(self):
         self.grid_forget()
+
+    def downloadOptions(self, master=None, scatter=True):
+        downloadOptionsMasterFrame = ttk.Frame(
+            master=self if master is None else master,
+            borderwidth=2,
+            relief=tk.SOLID,
+            width=30,
+        )
+        downloadOptionsMasterFrame.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.Y)
+
+        downloadLabel = ttk.Label(
+            master=downloadOptionsMasterFrame,
+            text="Download Options",
+            font=("arial", 15, "bold"),
+            width=20,
+        )
+        downloadLabel.configure(anchor=tk.CENTER)
+        downloadLabel.pack(side=tk.TOP, anchor="center", fill=tk.Y)
+
+        self.individualPlotButton = ttk.Button(
+            master=downloadOptionsMasterFrame,
+            text="Individual Plots",
+            width=15,
+            command=lambda: self.downLoadHandler(type=".pdf", multi=True),
+        )
+        self.individualPlotButton.pack(side=tk.TOP, padx=10, pady=5)
+
+        self.activityScoreSheetButton = ttk.Button(
+            master=downloadOptionsMasterFrame,
+            text="Activity Score Sheet",
+            width=15,
+            command=lambda: self.downLoadHandler(type=".xlsx"),
+        )
+        self.activityScoreSheetButton.pack(side=tk.TOP, padx=10, pady=5)
+
+        if scatter:
+            self.scatterPlotbutton = ttk.Button(
+                master=downloadOptionsMasterFrame,
+                text="Scatter Plots",
+                width=15,
+                command=lambda: self.downLoadHandler(type=".pdf", multi=False),
+            )
+            self.scatterPlotbutton.pack(side=tk.TOP, padx=10, pady=5)
+
+        return downloadOptionsMasterFrame
+
+    def downLoadHandler(self, type=".xlsx", multi=True):
+        filePath = filedialog.asksaveasfilename(defaultextension=type)
+        if type == ".xlsx":
+            cpa.analyzeDf(
+                dataset=self.ds,
+                compLabel=self.kwargs["activityTitles"][0],
+                noCompLabel=self.kwargs["activityTitles"][1],
+                threshold=self.kwargs["threshold"],
+                outName=filePath,
+            )
+        elif type == ".pdf" and multi:
+            with PdfPages(filePath) as pdf:
+                for fig in self.figs:
+                    pdf.savefig(fig)
+        elif type == ".pdf" and not multi:
+            self.g.savefig(filePath, format="pdf", dpi=320)
+
+    def graphViewer(self, master=None, scatter=True):
+        def changeViewFig(fig):
+            self.activeFig.pack_forget()
+            self.activeFig = self.displayFigure(fig)
+
+        graphViewMainFrame = ttk.Frame(
+            master=self if master is None else master, borderwidth=2, relief=tk.SOLID
+        )
+        graphViewMainFrame.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.Y)
+
+        graphViewLabel = ttk.Label(
+            master=graphViewMainFrame,
+            text="Figure View",
+            font=("arial", 15, "bold"),
+            width=20,
+        )
+        graphViewLabel.configure(anchor="center")
+        graphViewLabel.pack(side=tk.TOP, fill=tk.X, anchor=tk.CENTER, padx=10, pady=5)
+
+        indivPlotButton = ttk.Button(
+            master=graphViewMainFrame,
+            text="View Individual Plots",
+            width=15,
+            command=lambda: changeViewFig(fig=self.figs),
+        )
+        indivPlotButton.pack(side=tk.TOP, padx=10, pady=5)
+
+        if scatter:
+            scattePlotButton = ttk.Button(
+                master=graphViewMainFrame,
+                text="View Scatter Plot",
+                width=15,
+                command=lambda: changeViewFig(fig=self.g.fig),
+            )
+            scattePlotButton.pack(side=tk.TOP, padx=10, pady=5)
+        return graphViewMainFrame
 
 
 class Yer(ttk.Frame):

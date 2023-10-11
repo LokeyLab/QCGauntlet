@@ -140,62 +140,70 @@ def genIndviPlots(
     outname,
     threshold=0.5,
     control=["DMSO", "PMA"],
+    pdfOut=True,
 ):
     groups = ds.groupby(groupByCol)
 
-    with PdfPages(outname) as p:
-        for (
-            name,
-            df,
-        ) in groups:
-            fig, ax = plt.subplots(
-                nrows=1, ncols=3, figsize=(3 * 4, 4)
-            )  # make subplots of 1 row, 3 cols and then the next 2 cols are the elbow plots (sorted CP score)
+    figs = []
+    for (
+        name,
+        df,
+    ) in groups:
+        fig, ax = plt.subplots(
+            nrows=1, ncols=3, figsize=(3 * 4, 4)
+        )  # make subplots of 1 row, 3 cols and then the next 2 cols are the elbow plots (sorted CP score)
 
-            colors = [
-                "purple"
-                if i == f"CONTROL_{control[0]}"
-                else "limegreen"
-                if len(control) > 1 and i == f"CONTROL_{control[1]}"
-                else "C0"
-                for i in df["well_type"].to_list()
-            ]
-            df.plot.scatter(
-                x=xCol,
-                y=yCol,
-                ax=ax[0],
-                title=f"plate: {name} scatter plot",
-                c=colors,
-                alpha=0.75,
-            )
-            ax[0].axvline(x=threshold, color="r", zorder=2)
-            ax[0].axhline(y=threshold, color="r", zorder=2)
+        colors = [
+            "purple"
+            if i == f"CONTROL_{control[0]}"
+            else "limegreen"
+            if len(control) > 1 and i == f"CONTROL_{control[1]}"
+            else "C0"
+            for i in df["well_type"].to_list()
+        ]
+        df.plot.scatter(
+            x=xCol,
+            y=yCol,
+            ax=ax[0],
+            title=f"plate: {name} scatter plot",
+            c=colors,
+            alpha=0.75,
+        )
+        ax[0].axvline(x=threshold, color="r", zorder=2)
+        ax[0].axhline(y=threshold, color="r", zorder=2)
 
-            if control is not None:
-                newDf = df[~(df.index.str.contains("|".join(control)))]
-            else:
-                newDf = df
+        if control is not None:
+            newDf = df[~(df.index.str.contains("|".join(control)))]
+        else:
+            newDf = df
 
-            compScore = newDf[xCol].sort_values().values
-            noCompScore = newDf[yCol].sort_values().values
+        compScore = newDf[xCol].sort_values().values
+        noCompScore = newDf[yCol].sort_values().values
 
-            x = [i for i in range(len(compScore))]
+        x = [i for i in range(len(compScore))]
 
-            ax[1].plot(x, compScore, linestyle="-", color="blue")
-            ax[1].axhline(y=threshold, color="r", zorder=2)
-            ax[1].set_xlabel("Compounds")
-            ax[1].set_ylabel(xCol)
-            ax[1].set_title(f"plate: {name} elbow plot")
+        ax[1].plot(x, compScore, linestyle="-", color="blue")
+        ax[1].axhline(y=threshold, color="r", zorder=2)
+        ax[1].set_xlabel("Compounds")
+        ax[1].set_ylabel(xCol)
+        ax[1].set_title(f"plate: {name} elbow plot")
 
-            ax[2].plot(x, noCompScore, linestyle="-", color="blue")
-            ax[2].axhline(y=threshold, color="r", zorder=2)
-            ax[2].set_xlabel("Compounds")
-            ax[2].set_ylabel(yCol)
-            ax[2].set_title(f"plate: {name} elbow plot")
+        ax[2].plot(x, noCompScore, linestyle="-", color="blue")
+        ax[2].axhline(y=threshold, color="r", zorder=2)
+        ax[2].set_xlabel("Compounds")
+        ax[2].set_ylabel(yCol)
+        ax[2].set_title(f"plate: {name} elbow plot")
 
-            fig.tight_layout()
-            fig.savefig(p, format="pdf", dpi=320)
-            plt.close(fig=fig)
+        fig.tight_layout()
+        figs.append(fig)
+
+    if pdfOut:
+        with PdfPages(outname) as pdf:
+            for fig in figs:
+                pdf.savefig(figure=fig, dpi=320)
+                plt.close(fig=fig)
+
+    return figs
 
 
 def genIndivElbows(
@@ -206,30 +214,38 @@ def genIndivElbows(
     threshold=0.5,
     control=["DMSO", "PMA"],
     sep="._.",
+    pdfOut=True,
 ):
     groups = ds.groupby(groupByCol)
+    figs = []
 
-    with PdfPages(outname) as pdf:
-        for name, df in groups:
-            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4, 4))
+    for name, df in groups:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(4, 4))
 
-            controlNames = [f"{control[i]}{sep}" for i in range(len(control))]
-            newDf = df
-            if control is not None:
-                newDf = df[~(df.index.str.contains("|".join(controlNames)))]
+        controlNames = [f"{control[i]}{sep}" for i in range(len(control))]
+        newDf = df
+        if control is not None:
+            newDf = df[~(df.index.str.contains("|".join(controlNames)))]
 
-            scores = newDf[yCol].sort_values().values
-            x = [i for i in range(len(scores))]
+        scores = newDf[yCol].sort_values().values
+        x = [i for i in range(len(scores))]
 
-            ax.plot(x, scores, linestyle="-", color="blue")
-            ax.axhline(y=threshold, color="r", zorder=2)
-            ax.set_xlabel("Compounds")
-            ax.set_ylabel(yCol)
-            ax.set_title(f"plate: {name} elbow plot")
+        ax.plot(x, scores, linestyle="-", color="blue")
+        ax.axhline(y=threshold, color="r", zorder=2)
+        ax.set_xlabel("Compounds")
+        ax.set_ylabel(yCol)
+        ax.set_title(f"plate: {name} elbow plot")
 
-            fig.tight_layout()
-            pdf.savefig(figure=fig, dpi=320)
-            plt.close(fig=fig)
+        fig.tight_layout()
+        figs.append(fig)
+
+    if pdfOut:
+        with PdfPages(outname) as pdf:
+            for fig in figs:
+                pdf.savefig(figure=fig, dpi=320)
+                plt.close(fig=fig)
+
+    return figs
 
 
 def analyzeDf(
