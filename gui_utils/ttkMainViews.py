@@ -44,8 +44,9 @@ class CPActivityScores(ttk.Frame):
         self.menuOptions = ttk.Frame(
             master=self, borderwidth=2, relief=tk.SOLID, width=30
         )
+        self.menuOptions.pack(side=tk.TOP, anchor="w")
         # self.menuOptions.pack(side=tk.TOP, anchor="nw", expand=True)
-        self.menuOptions.grid(row=0, column=0, sticky="ew", padx=10, pady=5)
+        # self.menuOptions.grid(row=0, column=0, sticky="ew", padx=10, pady=5)
 
         self.mentTitle = ttk.Label(
             master=self.menuOptions, text="Menu", width=20, font=("arial", 15, "bold")
@@ -113,27 +114,34 @@ class CPActivityScores(ttk.Frame):
         return ds
 
     def displayFigure(self, fig):
-        masterFrame = tk.Frame(self, borderwidth=2, padx=10, pady=10)
-        masterFrame.grid(row=1, column=0, sticky="nsew")
+        masterFrame = ttk.Frame(
+            self,
+            borderwidth=2,
+            # padx=10,
+            # pady=10,
+            relief=tk.SOLID,
+            # bg="#6562ff"
+        )
+        masterFrame.pack(side=tk.TOP, expand=True, fill=tk.BOTH, anchor=tk.CENTER)
 
-        # Set row and column weights for proper resizing
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        masterFrame.grid_rowconfigure(0, weight=1)
-        masterFrame.grid_columnconfigure(0, weight=1)
+        topGroupFrame = tk.Frame(master=masterFrame)
+        canvas = tk.Canvas(master=topGroupFrame)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        canvas = tk.Canvas(master=masterFrame)
-        canvas.grid(row=0, column=0, sticky="nsew")
-
+        vScrollFrame = tk.Frame(master=topGroupFrame)
         vScroll = ttk.Scrollbar(
-            master=masterFrame, orient=tk.VERTICAL, command=canvas.yview
+            master=vScrollFrame, orient=tk.VERTICAL, command=canvas.yview
         )
-        vScroll.grid(row=0, column=1, sticky="ns")
+        vScroll.pack(side=tk.LEFT, expand=True, fill=tk.Y)
+        vScrollFrame.pack(side=tk.LEFT, expand=False, fill=tk.Y)
+        topGroupFrame.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
+        hScrollFrame = tk.Frame(master=masterFrame)
         hScroll = ttk.Scrollbar(
-            master=masterFrame, orient=tk.HORIZONTAL, command=canvas.xview
+            master=hScrollFrame, orient=tk.HORIZONTAL, command=canvas.xview
         )
-        hScroll.grid(row=1, column=0, sticky="ew")
+        hScroll.pack(side=tk.BOTTOM, expand=False, fill=tk.X)
+        hScrollFrame.pack(side=tk.TOP, expand=False, fill=tk.X)
 
         canvas.configure(yscrollcommand=vScroll.set, xscrollcommand=hScroll.set)
         canvas.bind(
@@ -147,49 +155,24 @@ class CPActivityScores(ttk.Frame):
 
         canvas.create_window((0, 0), window=figCanvas, anchor="nw", tags="figCanvas")
 
+        # Function to handle mousewheel scrolling with smoother increment
+        def _on_mousewheel(event):
+            increment = -1 * (
+                event.delta / 120
+            )  # Smaller increment for smoother scrolling
+            canvas.yview_scroll(int(increment), "units")
+
         # Bind scrolling events to the canvas
-        canvas.tag_bind(
-            "figCanvas",
-            "<Enter>",
-            lambda event: canvas.bind_all("<MouseWheel>", self._on_mousewheel),
+        canvas.bind(
+            "<Enter>", lambda event: canvas.bind_all("<MouseWheel>", _on_mousewheel)
         )
-        canvas.tag_bind(
-            "figCanvas", "<Leave>", lambda event: canvas.unbind_all("<MouseWheel>")
+        canvas.bind(
+            "<Enter>", lambda event: canvas.bind_all("<Button-4>", _on_mousewheel)
         )
-
-    def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    # def displayFigure(self, fig):
-    #     masterFrame = tk.Frame(self, borderwidth=2, padx=10, pady=10)
-    #     masterFrame.grid(row=1, column=0, sticky="nsew")
-    #     masterFrame.grid_rowconfigure(0, weight=1)
-    #     masterFrame.grid_columnconfigure(0, weight=1)
-
-    #     canvas = tk.Canvas(master=masterFrame)
-    #     canvas.grid(row=0, column=0, sticky="nsew")
-
-    #     vScroll = ttk.Scrollbar(
-    #         master=masterFrame, orient=tk.VERTICAL, command=canvas.yview
-    #     )
-    #     vScroll.grid(row=0, column=1, sticky="ns")
-
-    #     hScroll = ttk.Scrollbar(
-    #         master=masterFrame, orient=tk.HORIZONTAL, command=canvas.xview
-    #     )
-    #     hScroll.grid(row=1, column=0, sticky="ew")
-
-    #     canvas.configure(yscrollcommand=vScroll.set, xscrollcommand=hScroll.set)
-    #     canvas.bind(
-    #         "<Configure>",
-    #         lambda event: canvas.configure(scrollregion=canvas.bbox("all")),
-    #     )
-
-    #     figFrame = FigureCanvasTkAgg(figure=fig, master=canvas)
-    #     figFrame.draw()
-    #     figCanvas = figFrame.get_tk_widget()
-
-    #     canvas.create_window((0, 0), window=figCanvas, anchor="nw")
+        canvas.bind(
+            "<Enter>", lambda event: canvas.bind_all("<Button-5>", _on_mousewheel)
+        )
+        canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
 
     def hide(self):
         self.grid_forget()

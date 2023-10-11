@@ -23,10 +23,9 @@ class App(tk.Tk):
         # title.pack(side=tk.TOP, anchor="nw", fill=tk.X)
 
         frame = ttk.Frame(self, borderwidth=2, relief="solid")
-
+        frame.pack(side=tk.LEFT, anchor="sw", fill=tk.Y)
         title = ttk.Label(frame, text="QCGauntlet.py", font=("arial", 20, "bold"))
         title.grid(row=0, column=0, columnspan=2, sticky="w", pady=(5, 30))
-        frame.pack(side=tk.LEFT, anchor="sw", fill=tk.Y)
 
         title_label = tk.Label(
             frame, text="Main File Input and Options", font=("Arial", 14, "bold")
@@ -57,26 +56,23 @@ class App(tk.Tk):
         )
         self.submit.grid(row=16, column=0, columnspan=2, padx=10, pady=20, sticky="ew")
 
-        frame.columnconfigure(0, weight=100)  # Give more weight to column 0
-        frame.columnconfigure(1, weight=0)
+        # frame.columnconfigure(0, weight=100)  # Give more weight to column 0
+        # frame.columnconfigure(1, weight=0)
 
         ######################### MAIN VIEW #########################
-        nbFrame = ttk.Frame(self)
-        nbFrame.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
-        self.nb = ttk.Notebook(master=nbFrame)
-
+        # nbFrame = ttk.Frame(self, borderwidth=50, relief=SOLID)
+        # nbFrame.pack_propagate(True)
+        self.nb = ttk.Notebook(master=self, height=480, width=480)
+        self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
         self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
 
         yer = Yer(self.nb)
 
         self.nb.add(self.cpScoreTab, text="cpscore")
         self.nb.add(yer, text="yeg")
-        self.nb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.cpScoreTab.forget()
         self.nb.pack_forget()
-        # nb.grid(row=0, column=3, padx=5, pady=10, sticky="ew")
-        # nb.pack(expand=True, fill=tk.BOTH)
 
     def submit_action(self):
         # Get the input values from the textboxes
@@ -110,13 +106,7 @@ class App(tk.Tk):
             renameColumn=renameColumns[1],
         )
 
-        # For demonstration, just print the input values
-        self.nb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        # print("Main Condition File:", main_condition_file)
-        # print("Alt Condition File:", alt_condition_file)
-        # print("Key File:", key_file)
-        # print("General Plate Names:", renameColumns[0])
-        # print("Proper Plate Names:", renameColumns[1])
+        self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
 
 
 def main():
