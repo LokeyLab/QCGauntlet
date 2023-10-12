@@ -29,7 +29,7 @@ class controlCorrelations(ttk.Frame):
             command=self.runBackend,
             width=10,
         )
-        self.runButton.pack(side=TOP, padx=5, pady=5)
+        self.runButton.pack(side=TOP, padx=5, pady=10)
         self.menu.pack(side=LEFT, expand=False, padx=10, pady=5)
 
     def loadData(self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, **kwargs):
