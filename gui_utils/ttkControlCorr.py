@@ -17,3 +17,10 @@ class controlCorrelations(ttk.Frame):
     def __init__(self, parent, cursor, *args, **kwargs):
         super().__init__(parent)
         self.cursor = cursor
+
+        self.topGrid = ttk.Frame(self, borderwidth=2, relief=SOLID)
+
+        lab = ttk.Label(master=self.topGrid, text="helloworld!")
+        lab.pack(side=TOP, expand=True, fill=X)
+
+        self.topGrid.pack(side=TOP)

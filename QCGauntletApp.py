@@ -76,8 +76,10 @@ class App(Window):
         self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
         self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
         self.cpScoreTab.resetWidgets()
+        self.corrTab = controlCorrelations(parent=self.nb, cursor=self.cursors)
 
         self.nb.add(self.cpScoreTab, text="cpscore")
+        self.nb.add(self.corrTab, text="control correlation")
 
         # self.cpScoreTab.forget()
         # self.nb.pack_forget()
