@@ -13,9 +13,7 @@ from gui_utils import *
 from modules import cpActivityScoresV2 as cpa
 
 
-class Yer(ttk.Frame):
-    def __init__(self, parent, **kwargs):
+class controlCorrelations(ttk.Frame):
+    def __init__(self, parent, cursor, *args, **kwargs):
         super().__init__(parent)
-
-        self.lab = ttk.Label(master=self, text="hey")
-        self.lab.grid(row=10, column=0)
+        self.cursor = cursor

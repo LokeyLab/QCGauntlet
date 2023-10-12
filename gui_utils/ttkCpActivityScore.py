@@ -36,22 +36,15 @@ class CPActivityScores(ttk.Frame):
         self.cond1, self.cond2 = None, None
         self.kwargs = None
         self.ds = None
+        self.scatter = False
 
         self.topGrid = ttk.Frame(master=self, borderwidth=2, relief=tk.SOLID)
         self.nextGrid = ttk.Frame(master=self)
 
         self.menu(master=self.topGrid)
 
-        self.dlOpts = self.downloadOptions(master=self.topGrid)
-        self.dlOpts.pack_forget()
-
-        self.changeView = self.graphViewer(master=self.topGrid)
-        self.changeView.pack_forget()
-
         self.topGrid.pack(side=tk.TOP, fill=tk.X, expand=False)
         self.nextGrid.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        # self.grid_rowconfigure(1, weight=1)  # Allow vertical expansion
-        # self.grid_columnconfigure(0, weight=1)
 
     def menu(self, master=None):
         self.menuOptions = ttk.Frame(
@@ -61,8 +54,6 @@ class CPActivityScores(ttk.Frame):
             width=30,
         )
         self.menuOptions.pack(side=tk.LEFT, anchor="center", padx=10, pady=5)
-        # self.menuOptions.pack(side=tk.TOP, anchor="nw", expand=True)
-        # self.menuOptions.grid(row=0, column=0, sticky="ew", padx=10, pady=5)
 
         self.mentTitle = ttk.Label(
             master=self.menuOptions, text="Menu", width=20, font=("arial", 15, "bold")
@@ -111,14 +102,18 @@ class CPActivityScores(ttk.Frame):
 
         if cond2 is not None:
             self.cond2.index.name = "Wells"
+            self.scatter = True
+        else:
+            self.scatter = False
+
         self.kwargs = kwargs
 
     def resetWidgets(self):
-        self.dlOpts.pack_forget()
-        self.changeView.pack_forget()
         self.menuOptions.pack_forget()
 
         try:
+            self.dlOpts.pack_forget()
+            self.changeView.pack_forget()
             self.activeFig.pack_forget()
         except:
             pass
@@ -133,9 +128,6 @@ class CPActivityScores(ttk.Frame):
 
     def runBackend(self):
         # THIS WORKS NOW
-        self.dlOpts.pack_forget()
-        self.changeView.pack_forget()
-
         options = self.getMenuOptions()
         self.kwargs.update({"sep": options[0], "plateLabelIndex": int(options[1])})
         self.ds = cpa.createDataScores(
@@ -174,89 +166,26 @@ class CPActivityScores(ttk.Frame):
                 outname="dummy.pdf",
             )
 
-        self.activeFig = self.displayFigure(fig=self.figs)
+        # self.activeFig = self.displayFigure(fig=self.figs)
+        try:  # if someone reruns the notebook again
+            self.dlOpts.pack_forget()
+            self.changeView.pack_forget()
+        except:
+            pass
+
+        self.dlOpts = self.downloadOptions(master=self.topGrid)
+        self.dlOpts.pack_forget()
+
+        self.changeView = self.graphViewer(master=self.topGrid)
+        self.changeView.pack_forget()
+
+        self.activeFig = DisplayFigure(fig=self.figs, master=self.nextGrid)
+
+        self.activeFig.pack(side=TOP, expand=True, fill=BOTH, anchor=CENTER)
         self.dlOpts.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.Y)
         self.changeView.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.Y)
 
         return self.ds
-
-    def displayFigure(self, fig):
-        masterFrame = ttk.Frame(
-            master=self.nextGrid,
-            borderwidth=2,
-            # padx=10,
-            # pady=10,
-            relief=tk.SOLID,
-            # bg="#6562ff"
-        )
-        masterFrame.pack(side=tk.TOP, expand=True, fill=tk.BOTH, anchor=tk.CENTER)
-
-        topGroupFrame = tk.Frame(master=masterFrame)
-        canvas = tk.Canvas(master=topGroupFrame)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        vScrollFrame = tk.Frame(master=topGroupFrame)
-        vScroll = ttk.Scrollbar(
-            master=vScrollFrame, orient=tk.VERTICAL, command=canvas.yview
-        )
-        vScroll.pack(side=tk.LEFT, expand=True, fill=tk.Y)
-        vScrollFrame.pack(side=tk.LEFT, expand=False, fill=tk.Y)
-        topGroupFrame.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
-
-        hScrollFrame = tk.Frame(master=masterFrame)
-        hScroll = ttk.Scrollbar(
-            master=hScrollFrame, orient=tk.HORIZONTAL, command=canvas.xview
-        )
-        hScroll.pack(side=tk.BOTTOM, expand=False, fill=tk.X)
-        hScrollFrame.pack(side=tk.TOP, expand=False, fill=tk.X)
-
-        canvas.configure(yscrollcommand=vScroll.set, xscrollcommand=hScroll.set)
-        canvas.bind(
-            "<Configure>",
-            lambda event: canvas.configure(scrollregion=canvas.bbox("all")),
-        )
-
-        if not isinstance(fig, list):
-            figFrame = FigureCanvasTkAgg(figure=fig, master=canvas)
-            figFrame.draw()
-            figCanvas = figFrame.get_tk_widget()
-
-            canvas.create_window(
-                (0, 0), window=figCanvas, anchor="nw", tags="figCanvas"
-            )
-        else:
-            fig_height = sum(f.bbox.ymax - f.bbox.ymin for f in fig)
-            canvas.config(scrollregion=(0, 0, 0, fig_height))
-
-            y_offset = 0
-            for f in fig:
-                fig_canvas = FigureCanvasTkAgg(figure=f, master=canvas)
-                fig_canvas.draw()
-                canvas.create_window(
-                    0, y_offset, window=fig_canvas.get_tk_widget(), anchor="nw"
-                )
-                y_offset += f.bbox.ymax - f.bbox.ymin
-
-        # Function to handle mousewheel scrolling with smoother increment
-        def _on_mousewheel(event):
-            increment = -1 * (
-                event.delta / 60
-            )  # Smaller increment for smoother scrolling
-            canvas.yview_scroll(int(increment), "units")
-
-        # Bind scrolling events to the canvas
-        canvas.bind(
-            "<Enter>", lambda event: canvas.bind_all("<MouseWheel>", _on_mousewheel)
-        )
-        canvas.bind(
-            "<Enter>", lambda event: canvas.bind_all("<Button-4>", _on_mousewheel)
-        )
-        canvas.bind(
-            "<Enter>", lambda event: canvas.bind_all("<Button-5>", _on_mousewheel)
-        )
-        canvas.bind("<Leave>", lambda event: canvas.unbind_all("<MouseWheel>"))
-
-        return masterFrame
 
     def hide(self):
         self.grid_forget()
@@ -295,7 +224,7 @@ class CPActivityScores(ttk.Frame):
         )
         self.activityScoreSheetButton.pack(side=tk.TOP, padx=10, pady=5)
 
-        if scatter:
+        if self.scatter:
             self.scatterPlotbutton = ttk.Button(
                 master=downloadOptionsMasterFrame,
                 text="Scatter Plots",
@@ -324,9 +253,15 @@ class CPActivityScores(ttk.Frame):
             self.g.savefig(filePath, format="pdf", dpi=320)
 
     def graphViewer(self, master=None, scatter=True):
+        if self.cond2 is None:
+            scatter = False
+
         def changeViewFig(fig):
+            if not isinstance(fig, list):
+                fig = [fig]
             self.activeFig.pack_forget()
-            self.activeFig = self.displayFigure(fig)
+            self.activeFig = DisplayFigure(fig, master=self.nextGrid)
+            self.activeFig.pack(side=TOP, expand=True, fill=BOTH, anchor=CENTER)
 
         graphViewMainFrame = ttk.Frame(
             master=self if master is None else master, borderwidth=2, relief=tk.SOLID
@@ -350,7 +285,7 @@ class CPActivityScores(ttk.Frame):
         )
         indivPlotButton.pack(side=tk.TOP, padx=10, pady=5)
 
-        if scatter:
+        if self.scatter:
             scattePlotButton = ttk.Button(
                 master=graphViewMainFrame,
                 text="View Scatter Plot",

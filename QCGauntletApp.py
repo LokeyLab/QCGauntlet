@@ -8,12 +8,12 @@ from ttkbootstrap import Style, ttk
 from ttkbootstrap.constants import *
 from gui_utils.ttkMainMenu import *
 from gui_utils.ttkCpActivityScore import CPActivityScores
-from gui_utils.ttkControlCorr import Yer
+from gui_utils.ttkControlCorr import controlCorrelations
 
-import ttkbootstrap as ttk
+from ttkbootstrap.window import Window
 
 
-class App(tk.Tk):
+class App(Window):
     def __init__(self):
         super().__init__()
         style = Style(theme="darkly")
@@ -76,10 +76,8 @@ class App(tk.Tk):
         self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
         self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
         self.cpScoreTab.resetWidgets()
-        yer = Yer(self.nb)
 
         self.nb.add(self.cpScoreTab, text="cpscore")
-        self.nb.add(yer, text="yeg")
 
         # self.cpScoreTab.forget()
         # self.nb.pack_forget()

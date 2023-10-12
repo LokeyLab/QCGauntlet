@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
-from ttkbootstrap import Style
+from tkinter import filedialog
+from ttkbootstrap import Style, ttk
 import os
 from gui_utils import *
 
