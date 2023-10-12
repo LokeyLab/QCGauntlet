@@ -25,11 +25,6 @@ class controlCorrelations(ttk.Frame):
 
         self.topGrid.pack(side=TOP, expand=False, fill=tk.X)
 
-    def menu(self, parent=None):
-        mainMenuframe = ttk.Frame(
-            master=self if parent is None else parent, borderwidth=2, relief=SOLID
-        )
-
 
 class controlCorrMenu(ttk.Frame):
     def __init__(self, *args, **kwargs):
