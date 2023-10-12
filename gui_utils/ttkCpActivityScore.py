@@ -90,6 +90,7 @@ class CPActivityScores(ttk.Frame):
             text="View Figures",
             cursor=self.cursor,
             command=self.runBackend,
+            width=10,
         )
         self.generateButton.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 

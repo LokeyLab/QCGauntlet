@@ -76,6 +76,7 @@ class App(Window):
         self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
         self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
         self.cpScoreTab.resetWidgets()
+
         self.corrTab = controlCorrelations(parent=self.nb, cursor=self.cursors)
 
         self.nb.add(self.cpScoreTab, text="cpscore")
@@ -120,7 +121,15 @@ class App(Window):
             threshold=threshold,
         )
 
-        self.cpScoreTab.showWidgets()
+        self.corrTab.loadData(
+            cond1=main_condition_file,
+            cond2=alt_condition_file,
+            key=key_file,
+            activityTitles=actTitles,
+            controlTitle=cntrlTitles,
+            renameColumn=renameColumns[1],
+            threshold=threshold,
+        )
         # self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
 
 
