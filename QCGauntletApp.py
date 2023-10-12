@@ -86,7 +86,7 @@ class App(Window):
 
     def submit_action(self):
         # Get the input values from the textboxes
-        self.nb.pack_forget()
+        # self.nb.pack_forget()
         self.cpScoreTab.resetWidgets()
 
         cond1, cond2, key = self.fb.getFiles()
@@ -121,7 +121,7 @@ class App(Window):
         )
 
         self.cpScoreTab.showWidgets()
-        self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
+        # self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
 
 
 def main():

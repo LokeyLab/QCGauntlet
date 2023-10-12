@@ -59,7 +59,7 @@ class CPActivityScores(ttk.Frame):
             master=self.menuOptions, text="Menu", width=20, font=("arial", 15, "bold")
         )
         self.mentTitle.configure(anchor=tk.CENTER)
-        self.mentTitle.grid(row=0, column=0, columnspan=10, padx=5, pady=5)
+        self.mentTitle.grid(row=0, column=0, columnspan=10, padx=5, pady=10)
 
         self.sepEntry = ttk.Entry(master=self.menuOptions, width=10)
         self.sepEntry.insert(0, "._.")
@@ -107,13 +107,14 @@ class CPActivityScores(ttk.Frame):
             self.scatter = False
 
         self.kwargs = kwargs
+        self.topGrid.pack(side=tk.TOP, fill=tk.X, expand=False)
+        self.nextGrid.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def resetWidgets(self):
-        self.menuOptions.pack_forget()
+        self.topGrid.pack_forget()
+        self.nextGrid.pack_forget()
 
         try:
-            self.dlOpts.pack_forget()
-            self.changeView.pack_forget()
             self.activeFig.pack_forget()
         except:
             pass
