@@ -8,7 +8,7 @@ from ttkbootstrap import Style, ttk
 from ttkbootstrap.constants import *
 from gui_utils.ttkMainMenu import *
 from gui_utils.ttkCpActivityScore import CPActivityScores
-from gui_utils.ttkControlCorr import controlCorrelations
+from gui_utils.ttkControlCorr import ControlCorrelations
 
 from ttkbootstrap.window import Window
 
@@ -24,7 +24,7 @@ class App(Window):
         # title.pack(side=tk.TOP, anchor="nw", fill=tk.X)
 
         frame = ttk.Frame(self, borderwidth=2, relief="solid")
-        frame.pack(side=tk.LEFT, anchor="sw", fill=tk.Y)
+        frame.pack(side=tk.LEFT, anchor="sw", fill=tk.Y, expand=False)
         title = ttk.Label(frame, text="QCGauntlet.py", font=("arial", 20, "bold"))
         title.grid(row=0, column=0, columnspan=2, sticky="w", pady=(5, 30))
 
@@ -57,7 +57,7 @@ class App(Window):
         )
         self.submit.grid(row=16, column=0, columnspan=2, padx=10, pady=20, sticky="ew")
 
-        self.quit = ttk.Button(
+        self.quitProcess = ttk.Button(
             master=frame,
             text="Quit",
             command=self.destroy,
@@ -65,7 +65,9 @@ class App(Window):
             bootstyle=DANGER,
             cursor=self.cursors,
         )
-        self.quit.grid(row=17, column=0, columnspan=2, padx=20, pady=15, sticky="ew")
+        self.quitProcess.grid(
+            row=17, column=0, columnspan=2, padx=20, pady=15, sticky="ew"
+        )
         # frame.columnconfigure(0, weight=100)  # Give more weight to column 0
         # frame.columnconfigure(1, weight=0)
 
@@ -77,7 +79,7 @@ class App(Window):
         self.cpScoreTab = CPActivityScores(self.nb, cursor=self.cursors)
         self.cpScoreTab.resetWidgets()
 
-        self.corrTab = controlCorrelations(parent=self.nb, cursor=self.cursors)
+        self.corrTab = ControlCorrelations(parent=self.nb, cursor=self.cursors)
 
         self.nb.add(self.cpScoreTab, text="cpscore")
         self.nb.add(self.corrTab, text="control correlation")
@@ -85,10 +87,14 @@ class App(Window):
         # self.cpScoreTab.forget()
         # self.nb.pack_forget()
 
+    def close(self):
+        self.destroy()
+        self.quit()
+
     def submit_action(self):
         # Get the input values from the textboxes
         # self.nb.pack_forget()
-        self.cpScoreTab.resetWidgets()
+        # self.cpScoreTab.resetWidgets()
 
         cond1, cond2, key = self.fb.getFiles()
         renameColumns = self.optionsFrontEnd.getIndexRename()
@@ -106,8 +112,8 @@ class App(Window):
         key_file = None
         if key is not None:
             key_file = pd.read_csv(key, sep=",")
+            key_file = key_file[renameColumns]
             key_file.set_index(renameColumns[0], inplace=True)
-
         # Perform actions with the input values
         # (e.g., process files, perform computations, etc.)
         # loadcpscoreactivity data
@@ -126,7 +132,7 @@ class App(Window):
             cond2=alt_condition_file,
             key=key_file,
             activityTitles=actTitles,
-            controlTitle=cntrlTitles,
+            controlList=cntrlTitles,
             renameColumn=renameColumns[1],
             threshold=threshold,
         )
@@ -137,6 +143,7 @@ def main():
     app = App()
     # app.resizable(False, False)
     app.mainloop()
+    exit(0)
 
 
 if __name__ == "__main__":

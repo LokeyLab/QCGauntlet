@@ -8,7 +8,7 @@ from ttkbootstrap import Style, ttk
 from ttkbootstrap.constants import *
 from gui_utils.ttkMainMenu import *
 from gui_utils.ttkCpActivityScore import CPActivityScores
-from gui_utils.ttkControlCorr import Yer
+from gui_utils.ttkControlCorr import controlCorrelations
 
 from gui_utils import *
 

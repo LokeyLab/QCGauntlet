@@ -25,6 +25,7 @@ def generateControlCorrsAnalysis(
     noCompDf: pd.DataFrame = None,
     controlList=[],
     threshold=0.5,
+    pdfOut=True,
     **kwargs,
 ):
     renameCol = kwargs.get("renameColumn", "longname_proper")
@@ -39,43 +40,45 @@ def generateControlCorrsAnalysis(
         noCompDf = parsePlates(inDf=noCompDf, **kwargs)
         noCompDfgroup = noCompDf.groupby(level="plates")
 
-    with PdfPages(outName) as pdf:
-        for (name1, df1), (name2, df2) in zip(compDfgroup, noCompDfgroup):
-            # print(name1, name2)
-            numRows = 1 if name2 is None else 2
-            fig, ax = plt.subplots(
-                nrows=numRows, ncols=len(controlList), figsize=(10, 6)
-            )
-            for row in range(numRows):
-                df = df1 if row == 0 else df2
-                for i, control in enumerate(controlList):
-                    subDf = df[
-                        df.index.get_level_values(renameCol).str.contains(
-                            f"{control}{sep}"
-                        )
-                    ]
-                    titleName, correlations = calcCorreplations(
-                        name=f"{control} in {name1 if row == 0 else name2}", df=subDf
-                    )
-                    activityScores = calculateScore(df=subDf)
-                    passingScores = (
-                        (activityScores >= threshold).sum() / len(activityScores) * 100
-                    )
+    figs = []
 
-                    if len(controlList) == 1:
-                        axis = ax
-                    else:
-                        axis = ax[i] if numRows == 1 else ax[(row, i)]
-                    plotCorrs(
-                        corrs=correlations,
-                        title=f"{titleName}\n{passingScores:0.1f}% of {control} Controls >= {threshold} Activity Score",
-                        ax=axis,
-                    )
-            fig.suptitle(f"{name1 if name2 is None else name2}")
-            fig.tight_layout()
-            pdf.savefig(fig, dpi=320)
-            plt.close(fig=fig)
-    return None
+    for (name1, df1), (name2, df2) in zip(compDfgroup, noCompDfgroup):
+        # print(name1, name2)
+        numRows = 1 if name2 is None else 2
+        fig, ax = plt.subplots(nrows=numRows, ncols=len(controlList), figsize=(10, 6))
+        for row in range(numRows):
+            df = df1 if row == 0 else df2
+            for i, control in enumerate(controlList):
+                subDf = df[
+                    df.index.get_level_values(renameCol).str.contains(f"{control}{sep}")
+                ]
+                titleName, correlations = calcCorreplations(
+                    name=f"{control} in {name1 if row == 0 else name2}", df=subDf
+                )
+                activityScores = calculateScore(df=subDf)
+                passingScores = (
+                    (activityScores >= threshold).sum() / len(activityScores) * 100
+                )
+
+                if len(controlList) == 1:
+                    axis = ax
+                else:
+                    axis = ax[i] if numRows == 1 else ax[(row, i)]
+                plotCorrs(
+                    corrs=correlations,
+                    title=f"{titleName}\n{passingScores:0.1f}% of {control} Controls >= {threshold} Activity Score",
+                    ax=axis,
+                )
+        fig.suptitle(f"{name1 if name2 is None else name2}")
+        fig.tight_layout()
+        figs.append(fig)
+
+    if pdfOut:
+        with PdfPages(outName) as pdf:
+            for fig in figs:
+                pdf.savefig(fig, dpi=320)
+                plt.close(fig=fig)
+    return figs
 
 
 def generateControlsAboveThresh(

@@ -43,8 +43,8 @@ class CPActivityScores(ttk.Frame):
 
         self.menu(master=self.topGrid)
 
-        self.topGrid.pack(side=tk.TOP, fill=tk.X, expand=False)
-        self.nextGrid.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # self.topGrid.pack(side=tk.TOP, fill=tk.X, expand=False)
+        # self.nextGrid.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def menu(self, master=None):
         self.menuOptions = ttk.Frame(
@@ -98,6 +98,10 @@ class CPActivityScores(ttk.Frame):
         return [self.sepEntry.get(), self.plateIndexEntry.get()]
 
     def loadData(self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, **kwargs):
+        self.topGrid.pack_forget()
+        self.nextGrid.pack_forget()
+        self.resetWidgets()
+
         self.cond1, self.cond2 = cond1, cond2
         self.cond1.index.name = "Wells"
 
@@ -114,6 +118,15 @@ class CPActivityScores(ttk.Frame):
     def resetWidgets(self):
         self.topGrid.pack_forget()
         self.nextGrid.pack_forget()
+        try:
+            self.dlOpts.pack_forget()
+        except:
+            pass
+
+        try:
+            self.changeView.pack_forget()
+        except:
+            pass
 
         try:
             self.activeFig.pack_forget()
@@ -296,11 +309,3 @@ class CPActivityScores(ttk.Frame):
             )
             scattePlotButton.pack(side=tk.TOP, padx=10, pady=5)
         return graphViewMainFrame
-
-
-class Yer(ttk.Frame):
-    def __init__(self, parent, **kwargs):
-        super().__init__(parent)
-
-        self.lab = ttk.Label(master=self, text="hey")
-        self.lab.grid(row=10, column=0)

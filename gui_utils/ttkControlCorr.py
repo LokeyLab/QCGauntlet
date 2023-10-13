@@ -13,11 +13,12 @@ from gui_utils import *
 from modules import controlCorrsV2 as corr
 
 
-class controlCorrelations(ttk.Frame):
+class ControlCorrelations(ttk.Frame):
     def __init__(self, parent, cursor, *args, **kwargs):
         super().__init__(parent)
-        self.cond1, self.cond2, self.kwargs = None, None, None
+        self.cond1, self.cond2, self.key, self.kwargs = None, None, None, None
         self.cursor = cursor
+        self.figs = None
 
         self.topGrid = ttk.Frame(self, borderwidth=2, relief=SOLID)
 
@@ -32,9 +33,10 @@ class controlCorrelations(ttk.Frame):
         self.runButton.pack(side=TOP, padx=5, pady=5)
         self.menu.pack(side=LEFT, expand=False, padx=10, pady=5)
 
-    def loadData(self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, **kwargs):
-        self.topGrid.pack_forget()
+        self.topGrid.pack(side=TOP, expand=False, fill=tk.X)  # DELETE THIS
 
+    def loadData(self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, **kwargs):
+        # self.topGrid.pack_forget() #UNCOMMENT THIS FOR FINAL PRODUCT
         self.cond1 = cond1
         self.cond2 = cond2
         self.kwargs = kwargs
@@ -42,10 +44,21 @@ class controlCorrelations(ttk.Frame):
         if cond2 is not None:
             self.cond2.index.name = "Wells"
 
-        self.topGrid.pack(side=TOP, expand=False, fill=tk.X)
+        # self.topGrid.pack(side=TOP, expand=False, fill=tk.X) # UNCOMMENT THIS
 
     def runBackend(self):
         sep, plateIndex = self.menu.getMenuOptions()
+        self.kwargs.update({"sep": sep, "plateLabelIndex": int(plateIndex)})
+
+        print(self.cond1)
+        print(self.cond2)
+        self.figs = corr.generateControlCorrsAnalysis(
+            compDf=self.cond1,
+            noCompDf=self.cond2,
+            outName="dummy.pdf",
+            pdfOut=False,
+            **self.kwargs,
+        )
 
 
 class controlCorrMenu(ttk.Frame):
