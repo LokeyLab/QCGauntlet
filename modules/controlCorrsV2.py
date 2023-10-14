@@ -1,5 +1,5 @@
 import numpy as np, pandas as pd, matplotlib.pyplot as plt, seaborn as sns
-import os
+import os, sys
 from matplotlib.backends.backend_pdf import PdfPages
 from modules import *
 
@@ -60,10 +60,15 @@ def generateControlCorrsAnalysis(
                     (activityScores >= threshold).sum() / len(activityScores) * 100
                 )
 
-                if len(controlList) == 1:
+                if len(controlList) == 1 and numRows == 1:
                     axis = ax
+                elif len(controlList) > 1 and numRows == 1:
+                    axis = ax[i]
+                elif len(controlList) == 1 and numRows == 2:
+                    axis = ax[row]
                 else:
-                    axis = ax[i] if numRows == 1 else ax[(row, i)]
+                    axis = ax[(row, i)]
+
                 plotCorrs(
                     corrs=correlations,
                     title=f"{titleName}\n{passingScores:0.1f}% of {control} Controls >= {threshold} Activity Score",

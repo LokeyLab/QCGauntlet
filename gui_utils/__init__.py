@@ -43,7 +43,7 @@ class PlaceholderEntry(ttk.Entry):
 class DisplayFigure(ttk.Frame):
     def __init__(self, fig: list, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.figs = fig
+        self.figs = fig if isinstance(fig, list) else [fig]
         self.figHeight = np.sum(fig.bbox.ymax - fig.bbox.ymin for fig in self.figs)
 
         self.canvas = self.__createFullCanvas()
@@ -68,11 +68,12 @@ class DisplayFigure(ttk.Frame):
             lambda e: self.canvas.yview_scroll(-int(e.delta / 60), "units"),
         )
 
-    def __createFullCanvas(self):
+    def __createFullCanvas(self, sepHeight=10):
         canvas = tk.Canvas(self)
         # canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
         yOffset = 0
+        separator_height = sepHeight
         for fig in self.figs:
             fCanvas = FigureCanvasTkAgg(figure=fig, master=canvas)
             fCanvas.draw()
@@ -80,6 +81,15 @@ class DisplayFigure(ttk.Frame):
                 0, yOffset, window=fCanvas.get_tk_widget(), anchor="nw"
             )
             yOffset += fig.bbox.ymax - fig.bbox.ymin
+
+            separator = ttk.Frame(
+                canvas,
+                height=separator_height,
+                width=canvas.winfo_width(),
+                relief=tk.SUNKEN,
+            )
+            canvas.create_window(0, yOffset, window=separator, anchor="nw")
+            yOffset += separator_height
         return canvas
 
     def __configure_canvas(self, event):

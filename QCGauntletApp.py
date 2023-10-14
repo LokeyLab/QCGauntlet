@@ -91,6 +91,10 @@ class App(Window):
         self.destroy()
         self.quit()
 
+    def __del__(self):
+        self.corrTab.__del__()
+        self.close()
+
     def submit_action(self):
         # Get the input values from the textboxes
         # self.nb.pack_forget()
