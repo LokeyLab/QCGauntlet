@@ -46,6 +46,9 @@ class CPActivityScores(ttk.Frame):
         # self.topGrid.pack(side=tk.TOP, fill=tk.X, expand=False)
         # self.nextGrid.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+    def closeFigs(self):
+        plt.close("all")
+
     def menu(self, master=None):
         self.menuOptions = ttk.Frame(
             master=master if master is not None else self,

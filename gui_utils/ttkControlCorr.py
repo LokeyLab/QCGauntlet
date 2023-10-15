@@ -69,13 +69,7 @@ class ControlCorrelations(ttk.Frame):
         self.closeFigs()
 
     def closeFigs(self):
-        if self.corrFigs is not None:
-            for fig in self.corrFigs:
-                plt.close(fig=fig)
-
-        if self.barFigs is not None:
-            for fig in self.barFigs:
-                plt.close(fig=fig)
+        plt.close("all")
 
     def hideAll(self):
         self.dlMenu.pack_forget()

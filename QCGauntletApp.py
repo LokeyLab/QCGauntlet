@@ -61,7 +61,7 @@ class App(Window):
         self.quitProcess = ttk.Button(
             master=frame,
             text="Quit",
-            command=self.destroy,
+            command=self.close,
             width=10,
             bootstyle=DANGER,
             cursor=self.cursors,
@@ -93,7 +93,8 @@ class App(Window):
 
     def close(self):
         plt.close("all")
-        self.corrTab.__del__()
+        self.corrTab.closeFigs()
+        self.cpScoreTab.closeFigs()
         self.quit()
         self.destroy()
 
