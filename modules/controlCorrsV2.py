@@ -129,12 +129,12 @@ def generateControlsAboveThresh(
 
     colors = {"DMSO": "purple", "PMA": "limegreen"}
 
-    fig, ax = plt.subplots(figsize=(16, 9))
+    fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(
         data=plates, x="plate", y="percentage", hue="controlType", palette=colors, ax=ax
     )
     ax.set_xticklabels(
-        ax.get_xticklabels(), rotation=45, size=12, ha="right", rotation_mode="anchor"
+        ax.get_xticklabels(), rotation=45, size=8, ha="right", rotation_mode="anchor"
     )
 
     for p in ax.patches:
@@ -144,7 +144,7 @@ def generateControlsAboveThresh(
             (p.get_x() + p.get_width() / 2.0, height),
             ha="center",
             va="bottom",
-            fontsize=8,
+            fontsize=6,
         )
 
     ax.set_title(

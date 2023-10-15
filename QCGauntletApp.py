@@ -17,7 +17,7 @@ from ttkbootstrap.window import Window
 class App(Window):
     def __init__(self):
         super().__init__()
-        style = Style(theme="darkly")
+        style = Style(theme="cyborg")
         self.title("QCGauntlet.py")
         self.geometry("1280x720")
         self.cursors = "dot"
