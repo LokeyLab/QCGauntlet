@@ -9,6 +9,7 @@ from ttkbootstrap.constants import *
 from gui_utils.ttkMainMenu import *
 from gui_utils.ttkCpActivityScore import CPActivityScores
 from gui_utils.ttkControlCorr import ControlCorrelations
+from gui_utils.ttkClusterControl import ControlClustering
 
 from ttkbootstrap.window import Window
 
@@ -81,18 +82,22 @@ class App(Window):
 
         self.corrTab = ControlCorrelations(parent=self.nb, cursor=self.cursors)
 
+        self.controlClust = ControlClustering(master=self.nb, cursor=self.cursors)
+
         self.nb.add(self.cpScoreTab, text="cpscore")
         self.nb.add(self.corrTab, text="control correlation")
+        self.nb.add(self.controlClust, text="Control clustermap")
 
         # self.cpScoreTab.forget()
         # self.nb.pack_forget()
 
     def close(self):
-        self.destroy()
+        plt.close("all")
+        self.corrTab.__del__()
         self.quit()
+        self.destroy()
 
     def __del__(self):
-        self.corrTab.__del__()
         self.close()
 
     def submit_action(self):

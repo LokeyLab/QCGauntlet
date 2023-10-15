@@ -94,6 +94,9 @@ class CPActivityScores(ttk.Frame):
         )
         self.generateButton.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
 
+    def __del__(self):
+        plt.close("all")
+
     def getMenuOptions(self):
         return [self.sepEntry.get(), self.plateIndexEntry.get()]
 

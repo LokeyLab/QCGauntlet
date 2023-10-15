@@ -64,8 +64,17 @@ class ControlCorrelations(ttk.Frame):
         # self.figView.pack(side=TOP, expand=TRUE, fill=BOTH)
 
     def __del__(self):
-        if self.figs is not None:
-            for fig in self.figs:
+        print("closing figures")
+        plt.close("all")
+        self.closeFigs()
+
+    def closeFigs(self):
+        if self.corrFigs is not None:
+            for fig in self.corrFigs:
+                plt.close(fig=fig)
+
+        if self.barFigs is not None:
+            for fig in self.barFigs:
                 plt.close(fig=fig)
 
     def hideAll(self):
