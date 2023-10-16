@@ -17,7 +17,7 @@ from ttkbootstrap.window import Window
 class App(Window):
     def __init__(self):
         super().__init__()
-        style = Style(theme="cyborg")
+        style = Style(theme="superhero")
         self.title("QCGauntlet.py")
         self.geometry("1280x720")
         self.cursors = "dot"
@@ -146,6 +146,16 @@ class App(Window):
             renameColumn=renameColumns[1],
             threshold=threshold,
         )
+
+        self.controlClust.loadData(
+            cond1=main_condition_file,
+            cond2=alt_condition_file,
+            key=key_file,
+            activityTitles=actTitles,
+            controls=cntrlTitles,
+            renameColumn=renameColumns[1],
+        )
+
         # self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
 
 

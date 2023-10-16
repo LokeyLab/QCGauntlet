@@ -18,9 +18,11 @@ class ControlClustering(ttk.Frame):
     def __init__(self, cursor, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cursor = cursor
+        self.cond1, self.cond2 = None, None
+        self.key = None
+        self.kwargs = None
 
         self.mainFrame = ttk.Frame(master=self, borderwidth=2, relief=SOLID)
-        self.mainFrame.pack(side=TOP, anchor=CENTER, padx=10, pady=10)
 
         self.titleLabel = ttk.Label(
             master=self.mainFrame,
@@ -36,6 +38,7 @@ class ControlClustering(ttk.Frame):
             text="Generate files",
             width=20,
             cursor=self.cursor,
+            command=self.runBackend,
         )
 
         self.sep, self.sepEntry = self.__buttonTextCombo(
@@ -49,10 +52,20 @@ class ControlClustering(ttk.Frame):
             parent=self.mainFrame, text1="Row Clustering", text2="Column Clustering"
         )
 
+        self.notifLabel = ttk.Label(
+            self,
+            anchor=CENTER,
+            text="Please be patient, Java TreeView File Generation may take a while",
+            font=("arial", 30, "bold"),
+            borderwidth=2,
+            relief=SOLID,
+        )
+
         self.sep.pack(side=TOP, padx=5, pady=5)
         self.plateIndex.pack(side=TOP, padx=5, pady=5)
         self.checkFrame.pack(side=TOP, padx=5, pady=5)
         self.genButton.pack(side=TOP, padx=5, pady=10)
+        # self.mainFrame.pack(side=TOP, anchor=CENTER, padx=10, pady=10)
 
     def __buttonTextCombo(self, parent, text, preInsert: str = None):
         mainFrame = tk.Frame(master=parent)
@@ -94,3 +107,43 @@ class ControlClustering(ttk.Frame):
         colClusterCheck.pack(side=TOP, anchor=CENTER, padx=5, pady=10)
 
         return mainFrame, rowClusterVar, colCLusterVar
+
+    def loadData(
+        self, cond1: pd.DataFrame, cond2: pd.DataFrame = None, key=None, **kwargs
+    ):
+        # self.mainFrame.pack_forget()
+
+        self.cond1 = cond1
+        self.cond2 = cond2
+        self.key = key
+        self.kwargs = kwargs
+
+        self.cond1.index.name = "Wells"
+        if self.cond2 is not None:
+            self.cond2.index.name = "Wells"
+
+        self.mainFrame.pack(side=TOP, anchor=CENTER, padx=10, pady=10)
+
+    def runBackend(self):
+        self.notifLabel.pack(side=TOP, fill=tk.Y, expand=True, padx=10, pady=15)
+        self.kwargs.update(
+            {
+                "rowCluster": self.rowClustVar.get(),
+                "colCluster": self.colClusterVar.get(),
+                "sep": self.sepEntry.get(),
+                "plateLabelIndex": int(self.plateIndexEntry.get()),
+            }
+        )
+        filePath = filedialog.asksaveasfilename()
+
+        df = cc.formatDf(
+            compDf=self.cond1, noCompDf=self.cond2, key=self.key, **self.kwargs
+        )
+
+        cc.genTreeViewClustMap(
+            inDf=df,
+            outname=filePath,
+            rowCluster=self.kwargs["rowCluster"],
+            colCluster=self.kwargs["colCluster"],
+        )
+        self.notifLabel.pack_forget()
