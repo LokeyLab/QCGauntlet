@@ -111,33 +111,44 @@ class ControlCorrelations(ttk.Frame):
         except:
             pass
 
+        if self.kwargs["key"] is None:
+            tk.messagebox.showerror(
+                title="Error",
+                message="A key file must be inputted in order to use this function",
+            )
+            return
+
         sep, plateIndex = self.menu.getMenuOptions()
         self.kwargs.update({"sep": sep, "plateLabelIndex": int(plateIndex)})
 
-        self.corrFigs = corr.generateControlCorrsAnalysis(
-            compDf=self.cond1,
-            noCompDf=self.cond2,
-            outName="dummy.pdf",
-            pdfOut=False,
-            **self.kwargs,
-        )
-        self.barFigs = [
-            corr.generateControlsAboveThresh(
-                inDF=self.cond1,
-                datasetLab=self.kwargs["activityTitles"][0],
-                renameCol="Wells",
+        try:
+            self.corrFigs = corr.generateControlCorrsAnalysis(
+                compDf=self.cond1,
+                noCompDf=self.cond2,
+                outName="dummy.pdf",
+                pdfOut=False,
                 **self.kwargs,
             )
-        ]
-        if self.cond2 is not None:
-            self.barFigs.append(
+            self.barFigs = [
                 corr.generateControlsAboveThresh(
-                    inDF=self.cond2,
-                    datasetLab=self.kwargs["activityTitles"][1],
+                    inDF=self.cond1,
+                    datasetLab=self.kwargs["activityTitles"][0],
                     renameCol="Wells",
                     **self.kwargs,
                 )
-            )
+            ]
+            if self.cond2 is not None:
+                self.barFigs.append(
+                    corr.generateControlsAboveThresh(
+                        inDF=self.cond2,
+                        datasetLab=self.kwargs["activityTitles"][1],
+                        renameCol="Wells",
+                        **self.kwargs,
+                    )
+                )
+        except Exception as e:
+            tk.messagebox.showerror(title="Error", message=f"{type(e).__name__}: {e}")
+            return
 
         # self.activeDisplay = DisplayFigure(fig=self.figs, master=self.figView)
 

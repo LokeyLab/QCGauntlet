@@ -151,9 +151,13 @@ class CPActivityScores(ttk.Frame):
         # THIS WORKS NOW
         options = self.getMenuOptions()
         self.kwargs.update({"sep": options[0], "plateLabelIndex": int(options[1])})
-        self.ds = cpa.createDataScores(
-            compDf=self.cond1, noCompDf=self.cond2, **self.kwargs
-        )
+        try:
+            self.ds = cpa.createDataScores(
+                compDf=self.cond1, noCompDf=self.cond2, **self.kwargs
+            )
+        except Exception as e:
+            tk.messagebox.showerror(title="Error", message=f"{type(e).__name__}: {e}")
+            return
 
         if self.cond2 is not None:
             self.g = cpa.createMultiPlot(

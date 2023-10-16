@@ -125,6 +125,12 @@ class ControlClustering(ttk.Frame):
         self.mainFrame.pack(side=TOP, anchor=CENTER, padx=10, pady=10)
 
     def runBackend(self):
+        if self.key is None:
+            tk.messagebox.showerror(
+                title="Error",
+                message="A key file must be inputted in order to use this function",
+            )
+            return
         self.notifLabel.pack(side=TOP, fill=tk.Y, expand=True, padx=10, pady=15)
         self.kwargs.update(
             {
@@ -136,14 +142,18 @@ class ControlClustering(ttk.Frame):
         )
         filePath = filedialog.asksaveasfilename()
 
-        df = cc.formatDf(
-            compDf=self.cond1, noCompDf=self.cond2, key=self.key, **self.kwargs
-        )
+        try:
+            df = cc.formatDf(
+                compDf=self.cond1, noCompDf=self.cond2, key=self.key, **self.kwargs
+            )
 
-        cc.genTreeViewClustMap(
-            inDf=df,
-            outname=filePath,
-            rowCluster=self.kwargs["rowCluster"],
-            colCluster=self.kwargs["colCluster"],
-        )
+            cc.genTreeViewClustMap(
+                inDf=df,
+                outname=filePath,
+                rowCluster=self.kwargs["rowCluster"],
+                colCluster=self.kwargs["colCluster"],
+            )
+        except Exception as e:
+            tk.messagebox.showerror(title="Error", message=f"{type(e).__name__}: {e}")
+            return
         self.notifLabel.pack_forget()

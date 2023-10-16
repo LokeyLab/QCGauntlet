@@ -14,7 +14,7 @@ from gui_utils.ttkClusterControl import ControlClustering
 from ttkbootstrap.window import Window
 
 
-class App(Window):
+class App(tk.Tk):
     def __init__(self):
         super().__init__()
         style = Style(theme="superhero")
@@ -23,6 +23,9 @@ class App(Window):
         self.cursors = "dot"
         self.bootstyle = SUCCESS
         # title.pack(side=tk.TOP, anchor="nw", fill=tk.X)
+
+        # icon = tk.PhotoImage(file="./icons/calculator_data_analysis_icon_182971.png")
+        # self.iconphoto(True, icon)
 
         frame = ttk.Frame(self, borderwidth=2, relief="solid")
         frame.pack(side=tk.LEFT, anchor="sw", fill=tk.Y, expand=False)
@@ -113,7 +116,14 @@ class App(Window):
         cntrlTitles = self.optionsFrontEnd.getControlTitles()
         actTitles = self.optionsFrontEnd.getFileRenames()
 
-        main_condition_file = pd.read_csv(cond1, sep=",", index_col=indexCol)
+        try:
+            main_condition_file = pd.read_csv(cond1, sep=",", index_col=indexCol)
+        except Exception as e:
+            tk.messagebox.showerror(
+                title="Error",
+                message=f"This field must have a file!\n{type(e).__name__}: {e}",
+            )
+            return
 
         alt_condition_file = None
         if cond2 is not None:
@@ -156,6 +166,7 @@ class App(Window):
             renameColumn=renameColumns[1],
         )
 
+        return
         # self.nb.pack(side=LEFT, fill=tk.BOTH, expand=True)
 
 
