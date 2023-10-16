@@ -51,14 +51,15 @@ def formatDf(
 
 
 def genTreeViewClustMap(inDf: pd.DataFrame, outname, rowCluster=True, colCluster=True):
-    cwd = os.getcwd()
-    mkDirStr = os.path.join(cwd, ".tempDfLoc/")
+    home = os.path.expanduser("~")
+    mkDirStr = os.path.join(home, ".tempDfLoc")
+    print(mkDirStr)
     try:
         os.mkdir(mkDirStr)
     except:
         shutil.rmtree(mkDirStr)
         time.sleep(0.1)  # i need program to sleep in order to call the next command
-        os.mkdir(".tempDfLoc/")
+        os.mkdir(mkDirStr)
 
     inDf.to_csv(os.path.join(mkDirStr, "out.tsv"), sep="\t")
     pyclusterHeatmap_pearsonComplete(

@@ -1,1 +1,1 @@
-pyinstaller --onefile --windowed --name=QCGauntlet --clean --target-architecture arm64 --icon=icons/calculator_data_analysis_icon.ico QCGauntletApp.py
+pyinstaller --onefile --windowed --clean --name=QCGauntlet --target-architecture arm64 --icon=icons/calculator_data_analysis_icon.ico QCGauntletApp.py

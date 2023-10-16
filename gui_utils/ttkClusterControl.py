@@ -147,12 +147,13 @@ class ControlClustering(ttk.Frame):
                 compDf=self.cond1, noCompDf=self.cond2, key=self.key, **self.kwargs
             )
 
-            cc.genTreeViewClustMap(
+            fp = cc.genTreeViewClustMap(
                 inDf=df,
                 outname=filePath,
                 rowCluster=self.kwargs["rowCluster"],
                 colCluster=self.kwargs["colCluster"],
             )
+
         except Exception as e:
             tk.messagebox.showerror(title="Error", message=f"{type(e).__name__}: {e}")
             return
