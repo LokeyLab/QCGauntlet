@@ -16,7 +16,7 @@ class FileBrowsing(tk.Frame):
             parent,
             textvariable=self.file_path_var1,
             width=10,
-            # placeholder="Main Condition File (.csv)",
+            placeholder="Main Condition File (.csv)",
         )
         self.textbox1.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
         self.file_browser1 = ttk.Button(
@@ -35,7 +35,7 @@ class FileBrowsing(tk.Frame):
             parent,
             textvariable=self.file_path_var2,
             width=10,
-            # placeholder="Alt. Condition (.csv)",
+            placeholder="Alt. Condition (.csv)",
         )
         self.textbox2.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
         self.file_browser2 = ttk.Button(
@@ -53,7 +53,7 @@ class FileBrowsing(tk.Frame):
             parent,
             textvariable=self.file_path_var3,
             width=10,
-            # placeholder="Key file (.csv)",
+            placeholder="Key file (.csv)",
         )
         self.textbox3.grid(row=4, column=0, padx=10, pady=10, sticky="ew")
         self.file_browser3 = ttk.Button(
@@ -67,18 +67,18 @@ class FileBrowsing(tk.Frame):
         self.file_browser3.grid(row=4, column=1, padx=10, pady=10, sticky="e")
 
         # TEMP PLACEHOLDERS
-        self.textbox1.insert(
-            0,
-            "/Users/dterciano/Desktop/LokeyLabFiles/TargetMol/Datasets/TargetMol_PMA_histdiffpy_nometa_Concatenated_DEAD_DROPPED.csv",
-        )
-        self.textbox2.insert(
-            0,
-            "/Users/dterciano/Desktop/LokeyLabFiles/TargetMol/Datasets/TargetMol_DMSO_histdiffpy_nometa_Concatenated.csv",
-        )
-        self.textbox3.insert(
-            0,
-            "/Users/dterciano/Desktop/LokeyLabFiles/TargetMol/Annotations/TargetMol_KSReady_updatedTargetsRENAMED.csv",
-        )
+        # self.textbox1.insert(
+        #     0,
+        #     "/Users/dterciano/Desktop/LokeyLabFiles/TargetMol/Datasets/TargetMol_PMA_histdiffpy_nometa_Concatenated_DEAD_DROPPED.csv",
+        # )
+        # self.textbox2.insert(
+        #     0,
+        #     "/Users/dterciano/Desktop/LokeyLabFiles/TargetMol/Datasets/TargetMol_DMSO_histdiffpy_nometa_Concatenated.csv",
+        # )
+        # self.textbox3.insert(
+        #     0,
+        #     "/Users/dterciano/Desktop/LokeyLabFiles/TargetMol/Annotations/TargetMol_KSReady_updatedTargetsRENAMED.csv",
+        # )
 
     def cond1(self):
         file_path = filedialog.askopenfilename()
@@ -137,7 +137,7 @@ class programOptions(tk.Frame):
             parent,
             textvariable=self.general_plate_var,
             width=20,
-            # placeholder="Enter General Plate Names",
+            placeholder="Enter General Plate Names",
         )
         self.general_plate_entry.grid(row=6, column=0, padx=5, pady=5, sticky="w")
 
@@ -146,14 +146,10 @@ class programOptions(tk.Frame):
             parent,
             textvariable=self.proper_names_var,
             width=20,
-            # placeholder="Enter Proper Plate Names",
+            placeholder="Enter Proper Plate Names",
         )
         self.proper_names_entry.grid(row=6, column=1, padx=5, pady=5, sticky="e")
 
-        # self.submit_button = ttk.Button(
-        #     parent, text="Submit", command=self.submit_action, cursor=self.cursors
-        # )
-        # self.submit_button.grid(row=6, column=0, columnspan=2, pady=10)
         pair_title_label2 = tk.Label(
             parent, text="General options", font=("Arial", 12, "bold")
         )
@@ -187,15 +183,11 @@ class programOptions(tk.Frame):
         self.controlTitleHeading.grid(row=11, column=0, columnspan=2, padx=10, pady=5)
 
         self.controlTitle1Entry = PlaceholderEntry(
-            master=parent,
-            width=20,
-            # placeholder="Control Title 1"
+            master=parent, width=20, placeholder="Control Title 1"
         )
         self.controlTitle1Entry.grid(row=12, column=0, padx=10, pady=5, sticky="w")
         self.controlTitle2Entry = PlaceholderEntry(
-            master=parent,
-            width=20,
-            # placeholder="Control Title 2"
+            master=parent, width=20, placeholder="Control Title 2"
         )
         self.controlTitle2Entry.grid(row=12, column=1, padx=10, pady=5, sticky="e")
 
@@ -204,25 +196,21 @@ class programOptions(tk.Frame):
         )
         self.fileRenameTitle.grid(row=13, column=0, columnspan=2, padx=10, pady=5)
         self.fileRenameEntry1 = PlaceholderEntry(
-            master=parent,
-            width=20,
-            # placeholder="Main condition rename"
+            master=parent, width=20, placeholder="Main condition rename"
         )
         self.fileRenameEntry2 = PlaceholderEntry(
-            master=parent,
-            width=20,
-            # placeholder="Alt condition rename"
+            master=parent, width=20, placeholder="Alt condition rename"
         )
         self.fileRenameEntry1.grid(row=14, column=0, padx=10, pady=5, sticky="w")
         self.fileRenameEntry2.grid(row=14, column=1, padx=10, pady=5, sticky="e")
 
         # TEMP PLACEHOLDERS
-        self.fileRenameEntry2.insert(0, "nopma")
-        self.fileRenameEntry1.insert(0, "pma")
-        self.general_plate_entry.insert(0, "unambiguous_name")
-        self.proper_names_entry.insert(0, "longname_proper")
-        self.controlTitle1Entry.insert(0, "DMSO")
-        self.controlTitle2Entry.insert(0, "PMA")
+        # self.fileRenameEntry2.insert(0, "nopma")
+        # self.fileRenameEntry1.insert(0, "pma")
+        # self.general_plate_entry.insert(0, "unambiguous_name")
+        # self.proper_names_entry.insert(0, "longname_proper")
+        # self.controlTitle1Entry.insert(0, "DMSO")
+        # self.controlTitle2Entry.insert(0, "PMA")
 
     def getThreshold(self):
         return float(self.thresholdEntry.get())

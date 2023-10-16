@@ -134,7 +134,6 @@ The following are help prompts from the program that describe how to use the pro
                             Determines the seperator/delimiter used to " "split
                             text into their plates (default: "._.")
 
-
 **TODO/Task List:**
 
 - [x] Re-Write cpActivityScores.py &rarr; cpActivityScoresV2.py
@@ -148,5 +147,15 @@ The following are help prompts from the program that describe how to use the pro
     - [x] Implement bar plots for controls over threshold
 
 **Future Tasks**
-- [ ] Write a GUI (using tkinter/gooeyparse)
+- [x] Write a GUI (using tkinter/gooeyparse)
     - This will ultimately make it easier for others to use and not only the informaticist avaliable at hand
+
+***
+# QCGauntletApp.py
+***
+## A quality control front end tool (for CP3) that analyzes 1 or 2 conditions of a given dataset
+#### Written and created by Derfel Terciano
+
+This is the front end version of QCGauntlet, all input fields mimic the command line options given in QCGauntlet.py.
+
+***Note:*** This is currently only avaliable for MacOS
