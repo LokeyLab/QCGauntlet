@@ -1,3 +1,4 @@
+altgraph==0.17.4
 anyio==4.0.0
 appnope==0.1.3
 argon2-cffi==23.1.0
@@ -49,6 +50,7 @@ jupyterlab-pygments==0.2.2
 jupyterlab-widgets==3.0.9
 jupyterlab_server==2.25.0
 kiwisolver==1.4.5
+macholib==1.16.3
 MarkupSafe==2.1.3
 matplotlib==3.8.0
 matplotlib-inline==0.1.6
@@ -76,6 +78,8 @@ ptyprocess==0.7.0
 pure-eval==0.2.2
 pycparser==2.21
 Pygments==2.16.1
+pyinstaller==6.1.0
+pyinstaller-hooks-contrib==2023.10
 pyparsing==3.1.1
 python-dateutil==2.8.2
 python-json-logger==2.0.7
@@ -99,6 +103,7 @@ terminado==0.17.1
 tinycss2==1.2.1
 tornado==6.3.3
 traitlets==5.11.2
+ttkbootstrap==1.10.1
 types-python-dateutil==2.8.19.14
 tzdata==2023.3
 uri-template==1.3.0
