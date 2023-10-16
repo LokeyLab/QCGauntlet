@@ -53,7 +53,6 @@ def formatDf(
 def genTreeViewClustMap(inDf: pd.DataFrame, outname, rowCluster=True, colCluster=True):
     home = os.path.expanduser("~")
     mkDirStr = os.path.join(home, ".tempDfLoc")
-    print(mkDirStr)
     try:
         os.mkdir(mkDirStr)
     except:
