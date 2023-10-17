@@ -174,7 +174,7 @@ def main():
     app = App()
     # app.resizable(False, False)
     app.mainloop()
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
