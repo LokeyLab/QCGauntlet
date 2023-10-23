@@ -228,7 +228,7 @@ class programOptions(tk.Frame):
         return titles
 
     def getFileRenames(self):
-        renames = [self.fileRenameEntry1.get()]
+        renames = [self.fileRenameEntry1.get(), None]
         if self.fileRenameEntry2.get() != self.fileRenameEntry2.getPlaceholderText():
             renames = [self.fileRenameEntry1.get(), self.fileRenameEntry2.get()]
         return renames
