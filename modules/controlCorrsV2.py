@@ -99,10 +99,10 @@ def generateControlsAboveThresh(
     inDF = parsePlates(inDf=inDF, **kwargs)
     plateResults = []
     controlLabels = [i.split("._.")[0] for i in controlList]
-
+    renameColumn = kwargs.get("renameColumn", "longname_proper")
     for name, df in inDF.groupby(level="plates"):
         df = renameKeys(
-            mainDf=df, keyDf=key, renameColumn="longname_proper", left_on=renameCol
+            mainDf=df, keyDf=key, renameColumn=renameColumn, left_on=renameCol
         )
         df = calculateScore(df=df)
 
@@ -127,7 +127,8 @@ def generateControlsAboveThresh(
     plates = pd.concat(plateResults, axis=0)
     plates.reset_index(inplace=True, drop=True)
 
-    colors = {"DMSO": "purple", "PMA": "limegreen"}
+    # colors = {"DMSO": "purple", "PMA": "limegreen"}
+    colors = {f"{controlList[0]}": "purple", f"{controlList[1]}": "limegreen"}
 
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(
