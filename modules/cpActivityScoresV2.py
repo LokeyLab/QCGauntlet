@@ -110,21 +110,71 @@ def createMultiPlot(
     controlTitles=["DMSO", "PMA"],
 ):
     palette = None
+    uniqueControls = ds["well_type"].unique()
     if hue is not None:
-        if len(controlTitles) > 1:
-            palette = {
-                f"CONTROL_{controlTitles[0]}": "purple",
-                f"CONTROL_{controlTitles[1]}": "limegreen",
-                "EXPERIMENTAL": "C0",
-            }
-        else:
-            palette = {
-                f"CONTROL_{controlTitles[0]}": "purple",
-                "EXPERIMENTAL": "C0",
-            }
+        colormap = plt.cm.get_cmap("tab10")
+        colors = [colormap(i) for i in range(1, len(uniqueControls) + 1)]
+        palette = {
+            f"{control}": color for control, color in zip(uniqueControls, colors)
+        }
+        palette["EXPERIMENTAL"] = "C0"
 
-    g = sns.FacetGrid(ds, col=groupByCol, col_wrap=col_wrap, hue=hue, palette=palette)
-    g.map_dataframe(func=snsPlot, x=x, y=y, alpha=0.75)
+    markers = [
+        ",",
+        "v",
+        "^",
+        "<",
+        ">",
+        "1",
+        "2",
+        "3",
+        "4",
+        "8",
+        "s",
+        "p",
+        "*",
+        "h",
+        "H",
+        "+",
+        "x",
+        "d",
+        "|",
+        "_",
+        ".",
+    ]
+    markers = {f"{uniqueControls[i]}": markers[i] for i in range(len(uniqueControls))}
+    markers["EXPERIMENTAL"] = "o"
+
+    g = sns.FacetGrid(
+        ds,
+        col=groupByCol,
+        col_wrap=col_wrap,
+        hue=hue,
+        palette=palette,
+    )
+
+    def plot_with_markers(data, x, y, **kwargs):
+        ax = plt.gca()
+        for control_type, marker in markers.items():
+            data_subset = data[data["well_type"] == control_type]
+            sns.scatterplot(
+                data=data_subset,
+                x=x,
+                y=y,
+                # color=palette.get(f"CONTROL_{control_type}", "C0"),
+                marker=marker,
+                alpha=0.75,
+                ax=ax,
+                **kwargs,
+            )
+
+    g.map_dataframe(plot_with_markers, x=x, y=y)
+    # g.map_dataframe(
+    #     func=snsPlot,
+    #     x=x,
+    #     y=y,
+    #     alpha=0.75,
+    # )
 
     for ax in g.axes.flat:
         ax.axvline(x=threshold, color="r", zorder=2)
@@ -153,24 +203,64 @@ def genIndviPlots(
             nrows=1, ncols=3, figsize=(3 * 4, 4)
         )  # make subplots of 1 row, 3 cols and then the next 2 cols are the elbow plots (sorted CP score)
 
-        colors = [
-            "purple"
-            if i == f"CONTROL_{control[0]}"
-            else "limegreen"
-            if len(control) > 1 and i == f"CONTROL_{control[1]}"
-            else "C0"
-            for i in df["well_type"].to_list()
+        # control formatting
+        uniqueCntrls = df["well_type"].unique()
+        colormap = plt.cm.get_cmap("tab10")
+        colors = [colormap(i) for i in range(1, len(uniqueCntrls) + 1)]
+        controlColors = {
+            f"{uniqueCntrls[i]}": colors[i] for i in range(len(uniqueCntrls))
+        }
+        controlColors["EXPERIMENTAL"] = "C0"
+
+        colors = [controlColors.get(i, "C0") for i in df["well_type"].to_list()]
+
+        # marker formatting
+        markers = [
+            ",",
+            "v",
+            "^",
+            "<",
+            ">",
+            "1",
+            "2",
+            "3",
+            "4",
+            "8",
+            "s",
+            "p",
+            "*",
+            "h",
+            "H",
+            "+",
+            "x",
+            "d",
+            "|",
+            "_",
+            ".",
         ]
-        df.plot.scatter(
+
+        control_markers = {
+            f"{uniqueCntrls[i]}": markers[i] for i in range(len(uniqueCntrls))
+        }
+        control_markers["EXPERIMENTAL"] = "o"
+
+        scatter = sns.scatterplot(
+            data=df,
             x=xCol,
             y=yCol,
             ax=ax[0],
-            title=f"plate: {name} scatter plot",
-            c=colors,
-            alpha=0.75,
+            hue="well_type",
+            palette=controlColors,
+            style="well_type",
+            markers=control_markers,
         )
         ax[0].axvline(x=threshold, color="r", zorder=2)
         ax[0].axhline(y=threshold, color="r", zorder=2)
+
+        legend = ax[0].legend(
+            loc="upper left", fontsize="small"
+        )  # Position and size adjustments
+        scatter.set_label("_nolegend_")
 
         # if control is not None:
         #     newDf = df[~(df.index.str.contains("|".join(control)))]
