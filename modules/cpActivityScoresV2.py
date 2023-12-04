@@ -172,10 +172,10 @@ def genIndviPlots(
         ax[0].axvline(x=threshold, color="r", zorder=2)
         ax[0].axhline(y=threshold, color="r", zorder=2)
 
-        if control is not None:
-            newDf = df[~(df.index.str.contains("|".join(control)))]
-        else:
-            newDf = df
+        # if control is not None:
+        #     newDf = df[~(df.index.str.contains("|".join(control)))]
+        # else:
+        newDf = df
 
         compScore = newDf[xCol].sort_values().values
         noCompScore = newDf[yCol].sort_values().values
