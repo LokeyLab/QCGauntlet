@@ -262,6 +262,7 @@ def genIndviPlots(
                 hue="well_type",
                 palette=controlColors,
                 marker=marker,
+                alpha=0.75,
             )
         ax[0].axvline(x=threshold, color="r", zorder=2)
         ax[0].axhline(y=threshold, color="r", zorder=2)
