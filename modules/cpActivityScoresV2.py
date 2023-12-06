@@ -60,14 +60,22 @@ def getPlateActivityScores(
         )
         acScoreDf.set_index("Full Proper Name", inplace=True)
     inclSep = lambda x: "".join([x, sep])
-    wellType = [
-        f"CONTROL_{controlTitle[0]}"
-        if inclSep(controlTitle[0]) in i
-        else f"CONTROL_{controlTitle[1]}"
-        if len(controlTitle) > 1 and inclSep(controlTitle[1]) in i
-        else "EXPERIMENTAL"
-        for i in list(acScoreDf.index)
-    ]
+    # wellType = [
+    #     f"CONTROL_{controlTitle[0]}"
+    #     if inclSep(controlTitle[0]) in i
+    #     else f"CONTROL_{controlTitle[1]}"
+    #     if len(controlTitle) > 1 and inclSep(controlTitle[1]) in i
+    #     else "EXPERIMENTAL"
+    #     for i in list(acScoreDf.index)
+    # ]
+    wellType = []
+    for i in acScoreDf.index.to_list():
+        currWellType = "EXPERIMENTAL"
+        for j in controlTitle:
+            if inclSep(j) in i:
+                currWellType = f"CONTROL_{j}"
+                break
+        wellType.append(currWellType)
     acScoreDf["well_type"] = wellType
 
     return acScoreDf
@@ -244,23 +252,24 @@ def genIndviPlots(
         }
         control_markers["EXPERIMENTAL"] = "o"
 
-        scatter = sns.scatterplot(
-            data=df,
-            x=xCol,
-            y=yCol,
-            ax=ax[0],
-            hue="well_type",
-            palette=controlColors,
-            style="well_type",
-            markers=control_markers,
-        )
+        for controlType, marker in control_markers.items():
+            subDf = df[df["well_type"] == controlType]
+            scatter = sns.scatterplot(
+                data=subDf,
+                x=xCol,
+                y=yCol,
+                ax=ax[0],
+                hue="well_type",
+                palette=controlColors,
+                marker=marker,
+            )
         ax[0].axvline(x=threshold, color="r", zorder=2)
         ax[0].axhline(y=threshold, color="r", zorder=2)
 
         legend = ax[0].legend(
-            loc="upper left", fontsize="small"
+            loc="upper left", fontsize=5
         )  # Position and size adjustments
-        scatter.set_label("_nolegend_")
+        # scatter.set_label("_nolegend_")
 
         # if control is not None:
         #     newDf = df[~(df.index.str.contains("|".join(control)))]
