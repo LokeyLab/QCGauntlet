@@ -165,6 +165,15 @@ class CommandLine:
             help="List of control titles/labels (i.e. DMSO PMA)",
         )
 
+        self.cpActivityScoreSubparser.add_argument(
+            "-co",
+            "--controlsOnly",
+            action="store_true",
+            default=False,
+            required=False,
+            help="Excludes experimental data points in final figures and data",
+        )
+
         ### controlCluster ###
         self.controlClusterSubparser = self.subparser.add_parser(
             "controlCluster",
@@ -366,6 +375,7 @@ def main(inOpts=None):
             wellLabels="wells",
             renameColumn=cl.args.renameColumns[1],
             map=key,
+            expExclude=cl.args.controlsOnly,
         )
 
         cpa.analyzeDf(

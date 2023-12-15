@@ -81,7 +81,9 @@ def getPlateActivityScores(
     return acScoreDf
 
 
-def createDataScores(compDf: pd.DataFrame, noCompDf: pd.DataFrame = None, **kwargs):
+def createDataScores(
+    compDf: pd.DataFrame, noCompDf: pd.DataFrame = None, expExclude=False, **kwargs
+):
     acScores = []
     sep = kwargs.get("sep", "._.")
     compDf = parsePlates(inDf=compDf, **kwargs)
@@ -103,7 +105,13 @@ def createDataScores(compDf: pd.DataFrame, noCompDf: pd.DataFrame = None, **kwar
                     compoundDf=currCompDf, noCompDf=noCompDf, **kwargs
                 )
             )
-    return pd.concat(acScores, axis=0)
+
+    if not expExclude:
+        return pd.concat(acScores, axis=0)
+    else:
+        outDf = pd.concat(acScores, axis=0)
+        outDf = outDf[outDf["well_type"] != "EXPERIMENTAL"]
+        return outDf
 
 
 def createMultiPlot(
