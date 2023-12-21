@@ -71,10 +71,11 @@ def getPlateActivityScores(
     wellType = []
     for i in acScoreDf.index.to_list():
         currWellType = "EXPERIMENTAL"
-        for j in controlTitle:
-            if inclSep(j) in i:
-                currWellType = f"CONTROL_{j}"
-                break
+        if controlTitle is not None:
+            for j in controlTitle:
+                if inclSep(j) in i:
+                    currWellType = f"CONTROL_{j}"
+                    break
         wellType.append(currWellType)
     acScoreDf["well_type"] = wellType
 
