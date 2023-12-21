@@ -62,6 +62,6 @@
 #     cpactivity -at pma nopma -ct $(cat tm_controls.txt)
 
 python3 QCGauntlet.py -c /mnt/c/Users/derfelt/Desktop/LokeyLabFiles/ImmunoCP/designerHD_concats/DMSO_longConcat_hd.csv \
-    -ac /mnt/c/Users/derfelt/Desktop/LokeyLabFiles/ImmunoCP/designerHD_concats/LPS_longConcat_hd.csv \
-    -o "/mnt/c/Users/derfelt/Desktop/designer_LPSvDMSO" \
-    cpactivity -at dmso lps -ct DMSO-cntrl LPS-cntrl
+    -ac /mnt/c/Users/derfelt/Desktop/LokeyLabFiles/ImmunoCP/designerHD_concats/LPS-DMSO_longConcat_hd.csv \
+    -o "/mnt/c/Users/derfelt/Desktop/designer_LPS-DMSOvDMSO" \
+    cpactivity -at dmso lps-DMSO -ct DMSO-cntrl LPS-cntrl
