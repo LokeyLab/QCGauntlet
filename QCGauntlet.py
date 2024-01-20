@@ -479,6 +479,7 @@ def main(inOpts=None):
                 threshold=cl.args.threshold,
                 sep=cl.args.sep,
                 plateLabelIndex=cl.args.plateLabelIndex,
+                renameColumn=cl.args.renameColumns[1],
             )
             pdf.savefig(figure=fig, dpi=320)
             plt.close(fig)
@@ -492,6 +493,7 @@ def main(inOpts=None):
                     threshold=cl.args.threshold,
                     sep=cl.args.sep,
                     plateLabelIndex=cl.args.plateLabelIndex,
+                    renameColumn=cl.args.renameColumns[1],
                 )
                 pdf.savefig(figure=fig, dpi=320)
                 plt.close(fig)

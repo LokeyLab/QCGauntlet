@@ -66,9 +66,23 @@
 #     -o "/mnt/c/Users/derfelt/Desktop/designer_LPS-DMSOvDMSO" \
 #     cpactivity -at dmso lps-DMSO -ct DMSO-cntrl LPS-cntrl
 
+# python3 QCGauntlet.py -c "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/Datasets/10uM/10uM_concats_complete/TargetMol_10uM_PMA_plateConcat_DEADS_DROPPED_HD.csv" \
+#     -ac "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/Datasets/10uM/10uM_concats_complete/TargetMol_10uM_NoPMA_plateConcat_DEADS_DROPPED_HD.csv" \
+#     -o /mnt/c/Users/derfelt/Desktop/10uM_qc_controls -t 1.86 \
+#     -k "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/platemaps/templateConcatPlatemaps.csv" \
+#     -rc "formattedName" "sample_match" \
+#     cpactivity -at pma nopma -ct $(cat tm_controls.txt) -co
+
+# python3 QCGauntlet.py -c "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/Datasets/10uM/10uM_concats_complete/TargetMol_10uM_PMA_plateConcat_DEADS_DROPPED_HD.csv" \
+#     -ac "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/Datasets/10uM/10uM_concats_complete/TargetMol_10uM_NoPMA_plateConcat_DEADS_DROPPED_HD.csv" \
+#     -o /mnt/c/Users/derfelt/Desktop/10uM_qc -t 1.86 \
+#     -k "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/platemaps/templateConcatPlatemaps.csv" \
+#     -rc "formattedName" "sample_match" \
+#     cpactivity -at pma nopma -ct $(cat tm_controls.txt)
+
 python3 QCGauntlet.py -c "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/Datasets/10uM/10uM_concats_complete/TargetMol_10uM_PMA_plateConcat_DEADS_DROPPED_HD.csv" \
     -ac "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/Datasets/10uM/10uM_concats_complete/TargetMol_10uM_NoPMA_plateConcat_DEADS_DROPPED_HD.csv" \
-    -o /mnt/c/Users/derfelt/Desktop/10uM -t 1.86 \
+    -o /mnt/c/Users/derfelt/Desktop/10uM_qc_barPlots -t 1.86 \
     -k "/mnt/c/Users/derfelt/Desktop/LokeyLabFiles/TargetMol/platemaps/templateConcatPlatemaps.csv" \
     -rc "formattedName" "sample_match" \
-    cpactivity -at pma nopma -ct $(cat tm_controls.txt) -co
+    cntrlBarPlots -ds "PMA plate" "NoPMA plate" -ct POSITIVE REFERENCE
