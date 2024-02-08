@@ -94,15 +94,15 @@ class App(tk.Tk):
         # self.cpScoreTab.forget()
         # self.nb.pack_forget()
 
-    def close(self):
-        plt.close("all")
-        self.corrTab.closeFigs()
-        self.cpScoreTab.closeFigs()
-        self.quit()
-        self.destroy()
+    # def close(self):
+    #     plt.close("all")
+    #     self.corrTab.closeFigs()
+    #     self.cpScoreTab.closeFigs()
+    #     self.quit()
+    #     self.destroy()
 
-    def __del__(self):
-        self.close()
+    # def __del__(self):
+    #     self.close()
 
     def submit_action(self):
         # Get the input values from the textboxes
